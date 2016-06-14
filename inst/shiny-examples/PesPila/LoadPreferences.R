@@ -1,0 +1,16 @@
+# Initialize the UI. Copyright by Michael Bauer.
+#
+# Functions available:
+# 	- LoadPreferences()
+
+LoadPreferences <- function() {
+	# Main function to initialize the UI at first.
+	#
+	#	Return: No return value.
+
+	query <- "select name from sqlite_master where type='table'"
+	data <- dbGetQuery(conn = ppConn, statement =  query)
+
+	return (data)
+
+}  # END InitDB

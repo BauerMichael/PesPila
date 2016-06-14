@@ -1,0 +1,101 @@
+body {
+    background: #660000;
+    color: #000;
+}
+
+.well {
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.navbar .nav>li>a {
+    height: 50px;
+    padding: 15px 15px;
+}
+
+.nav-tabs {
+    background-color: #eee;
+}
+
+.nav-tabs>li>a {
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.data {
+    border: 1px solid #000;
+    background: #fff;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    margin-top: 10px;
+}
+table {
+    width: 100%;
+    font-size: 10px;
+}
+
+a {
+    color: #000;
+    font-weight: bold;
+}
+
+#compare, #compareAll, #overview, #overviewAll, #teamData, #sumTeamData,
+#stats, #wins, #winsPercent, #results, #goalDifferences, #goalDifferencesPercent, #gspm, #gsps, #all, #resultsPercent,
+#results1, #results2, #results3, #results4, #results5,
+#allMatches, #homeMatches, #awayMatches, #divisionMatches,
+#overviewMatches, #overviewMatchesPercent, #last2, #last5, #last10, #test {
+    background: #ccc;
+    font-size: 11px;
+}
+
+#compare, #compareAll, #overview, #overviewAll, #teamData, #sumTeamData,
+#stats, #wins, #results, #goalDifferences, #gspm, #gsps, #all, #resultsPercent,
+#results1, #results2, #results3, #results4, #results5,
+#allMatches, #homeMatches, #awayMatches, #divisionMatches,
+#overviewMatches, #last2, #last5, #last10 table tr th {
+    background: #999;
+    /*color: #fff;*/
+    font-size: 11px;
+}
+
+/*#gspm table tr th, #gsps table tr th {
+    background-color: #660000;
+}*/
+
+#legend {
+    color: #660000;
+    font-weight: bold;
+    font-size: 12px;
+}
+#header {
+    font-size: 14px;
+    color: #000;
+}
+
+#InitializeData {
+    display: none;
+}
+
+.shiny-progress .bar {
+    background-color: #FF0000;
+    .opacity: 0.8;
+}
+.shiny-progress .progress {
+    height: 10px;
+}
+.shiny-progress .progress-text {
+    background: rgb(255, 0, 0);
+    .opacity: 0.8;
+}
+
+caption {
+    color: #000;
+}
+
+.results {
+    width: 100%;
+    font-size: 10px;
+}
