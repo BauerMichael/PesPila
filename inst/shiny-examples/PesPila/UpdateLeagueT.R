@@ -14,8 +14,11 @@ UpdateLeagueT <- function(session, country = "Germany") {
 	InitDB()
   teams <- GetTeams(country = country)
   dbDisconnect(conn = ppConn)
-  updateSelectInput(session = session, inputId = "leagueT",
+  updateSelectInput(session = session, inputId = "leagueTH",
                     choices = teams,
                     selected = teams[1])
+  updateSelectInput(session = session, inputId = "leagueTA",
+                    choices = teams,
+                    selected = teams[2])
 
 }  # END UpdateLeagueT
