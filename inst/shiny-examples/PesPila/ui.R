@@ -1,7 +1,6 @@
 require(shiny)
 require(shinydashboard)
 require(hash)
-require(ggplot2)
 require(DT)
 require(RSQLite)
 
@@ -30,26 +29,6 @@ dbDisconnect(conn = ppConn)
 header <- dashboardHeader(
 
   title = "PesPila"
-
-  # dropdownMenu(type = "messages",
-    # messageItem(
-    #   from = "Sales Dept",
-    #   message = "Sales are steady this month."
-    # ),
-    # messageItem(
-    #   from = "New User",
-    #   message = "How do I register?",
-    #   icon = icon("question"),
-    #   time = "13:45"
-    # ),
-    # messageItem(
-    #   from = "Support",
-    #   message = "The new server is ready.",
-    #   icon = icon("life-ring"),
-    #   time = "2014-12-01"
-    # ),
-    # dropdownMenuOutput("messageMenu")
-  # )
 
 )
 
@@ -88,15 +67,7 @@ sidebar <- dashboardSidebar(
               choices = teams,
               selected = "Dortmund")
 
-  # p(class = "text-center",
-
-  #   actionButton(inputId = "leagueGetData", label = "Get Data")
-
-  # )
-
 )
-
-# tabPanel("Results", DT::dataTableOutput("leagueResults"))
 
 body <- dashboardBody(
 
@@ -105,45 +76,33 @@ body <- dashboardBody(
     tabItem(tabName = "statshometeam",
 
       fluidRow(
-# red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
-          box(width = 4,
-              title = textOutput("seasonHeaderAllHome"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("allSeasonGamesHome", height = 300)
 
-          ),
+        box(width = 4,
+            title = textOutput("seasonHeaderAllHome"),
+            background = "navy",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            plotOutput("allSeasonGamesHome", height = 300)
 
-          box(width = 4,
-              title = textOutput("seasonHeaderHomeHome"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("homeSeasonGamesHome", height = 300)
+        ),
 
-          ),
+        box(width = 4,
+            title = textOutput("seasonHeaderHomeHome"),
+            background = "navy",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            plotOutput("homeSeasonGamesHome", height = 300)
 
-          box(width = 4,
-              title = textOutput("seasonHeaderAwayHome"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("awaySeasonGamesHome", height = 300)
+        ),
 
-          )
+        box(width = 4,
+            title = textOutput("seasonHeaderAwayHome"),
+            background = "navy",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            plotOutput("awaySeasonGamesHome", height = 300)
 
-          # box(width = 4, title = textOutput("seasonHeaderHomeHome"),
-
-          #   plotOutput("homeSeasonGamesHome", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("seasonHeaderAwayHome"),
-
-          #   plotOutput("awaySeasonGamesHome", height = 300)
-
-          # )
+        )
 
       ),
 
@@ -175,24 +134,6 @@ body <- dashboardBody(
               plotOutput("awayGamesHome", height = 300)
 
         )
-
-          # box(width = 4, title = textOutput("overallHeaderAllHome"),
-
-          #   plotOutput("allGamesHome", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("overallHeaderHomeHome"),
-
-          #   plotOutput("homeGamesHome", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("overallHeaderAwayHome"),
-
-          #   plotOutput("awayGamesHome", height = 300)
-
-          # )
 
       )
 
@@ -229,24 +170,6 @@ body <- dashboardBody(
 
         )
 
-          # box(width = 4, title = textOutput("seasonHeaderAllAway"),
-
-          #   plotOutput("allGamesAway", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("seasonHeaderHomeAway"),
-
-          #   plotOutput("homeGamesAway", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("seasonHeaderAwayAway"),
-
-          #   plotOutput("awayGamesAway", height = 300)
-
-          # )
-
       ),
 
       fluidRow(
@@ -277,24 +200,6 @@ body <- dashboardBody(
               plotOutput("awaySeasonGamesAway", height = 300)
 
         )
-
-          # box(width = 4, title = textOutput("overallHeaderAllAway"),
-
-          #   plotOutput("allSeasonGamesAway", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("overallHeaderHomeAway"),
-
-          #   plotOutput("homeSeasonGamesAway", height = 300)
-
-          # ),
-
-          # box(width = 4, title = textOutput("overallHeaderAwayAway"),
-
-          #   plotOutput("awaySeasonGamesAway", height = 300)
-
-          # )
 
       )
 
@@ -345,14 +250,7 @@ body <- dashboardBody(
     
       fluidRow(
 
-        # p(class = "text-center",
-
-          uiOutput("buttons"),
-
-          # actionButton(inputId = "leagueGetData", label = "Games of the")
-          # actionButton(inputId = "leagueGetData2", label = "Get Data")
-
-        # ),
+        uiOutput("buttons"),
 
         column(10, offset = 1,
 
@@ -363,22 +261,6 @@ body <- dashboardBody(
       )
     
     )
-
-    # tabItem(tabName = "widgets",
-    
-    #   fluidRow(
-
-    #     p(class = "text-center",
-
-    #       actionButton(inputId = "leagueGetData", label = "Get Data")
-
-    #     ),
-
-    #     DT::dataTableOutput("leagueResults")
-
-    #   )
-    
-    # )
   
   )
 

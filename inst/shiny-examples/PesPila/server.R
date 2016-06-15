@@ -15,70 +15,6 @@ shinyServer(function(input, output, session) {
 
   })
 
-  # observeEvent(input$seasonGames, {
-
-  #   data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
-  #   output$leagueResults <- DT::renderDataTable({
-
-  #     datatable(data[, 4:ncol(data)],
-  #         rownames = TRUE, escape = FALSE,
-  #         extensions = c('ColReorder', 'ColVis', 'FixedColumns'),
-  #         options = list(pageLength = -1,
-  #             lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-  #             deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-  #             searchHighlight = TRUE,
-  #             dom = 'TRCSlfrtip<"clear">',
-  #             colReorder = list(realtime = TRUE)
-  #         )
-  #     )
-
-  #   })
-
-  # })
-
-  # observeEvent(input$homeVSaway, {
-
-  #   data <- GetHomeVsAway(input = input, country = input$leagueC, home = input$leagueTH, away = input$leagueTA)
-  #   output$leagueResults <- DT::renderDataTable({
-
-  #     datatable(data[, 3:ncol(data)],
-  #         rownames = FALSE, escape = FALSE,
-  #         extensions = c('ColReorder', 'ColVis', 'FixedColumns'),
-  #         options = list(pageLength = -1,
-  #             lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-  #             deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-  #             searchHighlight = TRUE,
-  #             dom = 'TRCSlfrtip<"clear">',
-  #             colReorder = list(realtime = TRUE)
-  #         )
-  #     )
-
-  #   })
-
-  # })
-
-  # observeEvent(input$endTable, {
-
-  #   data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
-  #   table <- GetTableOfSeason(data = data)
-  #   output$leagueResults <- DT::renderDataTable({
-
-  #     datatable(table,
-  #         rownames = FALSE, escape = FALSE,
-  #         extensions = c('ColReorder', 'ColVis', 'FixedColumns'),
-  #         options = list(pageLength = -1,
-  #             lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-  #             deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-  #             searchHighlight = TRUE,
-  #             dom = 'TRCSlfrtip<"clear">',
-  #             colReorder = list(realtime = TRUE)
-  #         )
-  #     )
-
-  #   })
-
-  # })
-
   output$GAMES <- DT::renderDataTable({
 
     data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
@@ -153,18 +89,6 @@ shinyServer(function(input, output, session) {
     paste0(input$leagueTH, " vs. ", input$leagueTA)
 
   })
-
-  # output$buttons <- renderUI({
-
-  #   p(class = "text-center",
-    
-  #     actionButton(inputId = "seasonGames", label = paste0("Get Games of Season ", input$leagueS)),
-  #     actionButton(inputId = "homeVSaway", label = paste0("Get Games of ", input$leagueTH, " vs. ", input$leagueTA)),
-  #     actionButton(inputId = "endTable", label = paste0("Table of Season ", input$leagueS))
-    
-  #   )
-  
-  # })
 
   output$tabPanel <- renderUI({
 

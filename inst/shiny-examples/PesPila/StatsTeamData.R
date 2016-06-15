@@ -1,7 +1,7 @@
 # Get team statistics. Copyright by Michael Bauer.
 #
 # Functions available:
-# 	- StatsTeamData(country, team, locus)
+# 	- StatsTeamData(country, team, locus, season)
 
 StatsTeamData <- function(country = "Germany", team = "Bayern Munich", locus = "HomeTeam", season = NA) {
 	# Get seasons in a given country for a given league.
@@ -21,7 +21,7 @@ StatsTeamData <- function(country = "Germany", team = "Bayern Munich", locus = "
   	if (season != "All") {  # IF
 
   		seas <- paste0(" and season = '", season, "'")
-  		
+
   	}  # END IF
 
   }  # END IF

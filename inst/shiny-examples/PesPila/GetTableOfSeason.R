@@ -13,9 +13,6 @@ GetTableOfSeason <- function(data) {
   teams <- unique(data[, "HomeTeam"])
   len <- length(teams)
   games <- 2 * nrow(data) / len
-  # tab <- data.frame("Team" = teams, "Games" = rep(x = games, times = len), "Won" = rep(x = 0, times = len),
-  # 									"Draw" = rep(x = 0, times = len), "Lost" = rep(x = 0, times = len), "Goals" = rep(x = 0, times = len),
-  # 									"Diff" = rep(x = 0, times = len), "Points" = rep(x = 0, times = len))
   stats <- list("Team" = teams, "Games" = rep(x = games, times = len), "Won" = c(), "Draw" = c(), "Lost" = c(),
   							"Goals" = c(), "Diff" = c(), "Points" = c())
 
