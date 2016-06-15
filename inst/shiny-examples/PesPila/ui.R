@@ -37,7 +37,8 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Stats Home Team", tabName = "statshometeam", icon = icon("dashboard")),
     menuItem("Stats Away Team", tabName = "statsawayteam", icon = icon("dashboard")),
-    menuItem("Tables", tabName = "results", icon = icon("th"))
+    menuItem("Tables", tabName = "results", icon = icon("th")),
+    menuItem("Plots", tabName = "plots", icon = icon("database"))
     # menuItem("Widgets", icon = icon("th"), tabName = "widgets",
     #          badgeLabel = "new", badgeColor = "green")
   ),
@@ -211,17 +212,6 @@ body <- dashboardBody(
 
         tabsetPanel(
 
-          tabPanel("Season Games",
-
-            h1(class = "text-center",
-
-              textOutput(outputId = "gamesHeader")
-
-            ),
-            DT::dataTableOutput("GAMES")
-
-          ),
-
           tabPanel("Season Tables",
 
             h1(class = "text-center",
@@ -230,6 +220,17 @@ body <- dashboardBody(
 
             ),
             DT::dataTableOutput("TABLES")
+
+          ),
+
+          tabPanel("Season Games",
+
+            h1(class = "text-center",
+
+              textOutput(outputId = "gamesHeader")
+
+            ),
+            DT::dataTableOutput("GAMES")
 
           ),
 
@@ -246,20 +247,42 @@ body <- dashboardBody(
 
         )
 
-      ),
-    
-      fluidRow(
+      )
 
-        uiOutput("buttons"),
+    ),
 
-        column(10, offset = 1,
+    tabItem(tabName = "plots",
 
-          DT::dataTableOutput("leagueResults")
+      column(10, offset = 1,
+
+        tabsetPanel(
+
+          tabPanel("Season Plots",
+
+            h1(class = "text-center",
+
+              textOutput(outputId = "seasonPlotHeader")
+
+            ),
+            plotOutput("seasonPlot")
+
+          ),
+
+          tabPanel("Home vs. Away Plot",
+
+            h1(class = "text-center",
+
+              textOutput(outputId = "vsPlotHeader")
+
+            ),
+            plotOutput("vsPlot")
+
+          )
 
         )
 
       )
-    
+
     )
   
   )

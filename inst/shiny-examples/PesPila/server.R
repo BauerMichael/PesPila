@@ -38,10 +38,10 @@ shinyServer(function(input, output, session) {
 
     data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
     table <- GetTableOfSeason(data = data)
-    rownames(table) <- 1:nrow(table)
+    table <- cbind("Place" = 1:nrow(table), table)
 
     datatable(table,
-        rownames = TRUE, escape = FALSE,
+        rownames = FALSE, escape = FALSE,
         extensions = c('ColReorder', 'ColVis', 'Responsive'),
         options = list(pageLength = -1,
             lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
@@ -74,13 +74,13 @@ shinyServer(function(input, output, session) {
 
   output$gamesHeader <- renderText({
 
-    paste0("Games of ", input$leagueL, " in season ", input$leagueS)
+    paste0("Games of ", input$leagueL, " - Season ", input$leagueS)
 
   })
 
   output$seasonHeader <- renderText({
 
-    paste0("Table of ", input$leagueL, " of season ", input$leagueS)
+    paste0("Table of ", input$leagueL, " - Season ", input$leagueS)
 
   })
 
