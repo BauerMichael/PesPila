@@ -1,18 +1,276 @@
 shinyServer(function(input, output, session) {
 
-  observeEvent(input$leagueC, {
+  observe({input$leagueC
 
-    UpdateLeagueL(session = session, country = input$leagueC)
-    UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL)
-    UpdateLeagueT(session = session, country = input$leagueC)
+    UpdateLeagueL(session = session, country = input$leagueC, league = input$leagueL)
+    UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+    UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
 
   })
 
-  observeEvent(input$leagueL, {
+  observe({input$leagueL
 
-    UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL)
-    UpdateLeagueT(session = session, country = input$leagueC)
+    UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+    UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
 
+  })
+
+  output$Poisson <- DT::renderDataTable({
+
+    data <- Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistPoisson <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$Probabilities), max(data$Normal, data$Table$Probabilities)))
+      lines(data$Table$Goals, data$Table$Probabilities, col = "red")
+
+    })
+
+    output$pvaluePoisson <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare$p.value > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare$p.value, 2))
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
+  })
+
+  output$ZIP <- DT::renderDataTable({
+
+    data <- ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistZIP <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+      lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+    })
+
+    output$pvalueZIP <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare$p.value > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
+  })
+
+  output$Uniform <- DT::renderDataTable({
+
+    data <- Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistUniform <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$Probabilities), max(data$Normal, data$Table$Probabilities)))
+      lines(data$Table$Goals, data$Table$Probabilities, col = "red")
+
+    })
+
+    output$pvalueUniform <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare, 2), " and a = ", data$a, ", b = ", data$b)
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
+  })
+
+  output$Geometric <- DT::renderDataTable({
+
+    data <- Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistGeometric <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$Probabilities), max(data$Normal, data$Table$Probabilities)))
+      lines(data$Table$Goals, data$Table$Probabilities, col = "red")
+
+    })
+
+    output$pvalueGeometric <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare$p.value > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare$p.value, 2))
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
+  })
+
+  output$NegBinom <- DT::renderDataTable({
+
+    data <- NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistNegBinom <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+      lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+    })
+
+    output$pvalueNegBinom <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare$p.value > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
+  })
+
+  output$Weibull <- DT::renderDataTable({
+
+    data <- Weibull(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+
+    output$pDistWeibull <- renderPlot({
+
+      plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+           ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+      lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+    })
+
+    output$pvalueWeibull <- renderText({
+
+      h0 <- ""
+      if (data$ChiSquare$p.value > 0.05) {
+
+        h0 <- "Accepting null-hypothesis with p-value = "
+
+      } else {
+
+        h0 <- "Rejecting null-hypothesis with p-value = "
+
+      }
+
+      paste0(h0, round(data$ChiSquare$p.value, 2), " with shape = ", round(data$shape, 2), ", scale = ", round(data$scale, 2), " and phi = ", round(data$phi, 2), ".")
+
+    })
+
+    datatable(data$Table,
+        rownames = FALSE, escape = FALSE,
+        extensions = c('ColReorder', 'ColVis', 'Responsive'),
+        options = list(pageLength = -1,
+            lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+            deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+            searchHighlight = TRUE,
+            dom = 'TRCSlfrtip<"clear">',
+            colReorder = list(realtime = TRUE)
+        )
+    )
+  
   })
 
   output$GAMES <- DT::renderDataTable({
@@ -230,5 +488,8 @@ shinyServer(function(input, output, session) {
     output$seasonHeaderAwayAway <- renderText({header})
 
   })
+
+  output$homeHeader <- renderText({input$leagueTH})
+  output$awayHeader <- renderText({input$leagueTA})
 
 })

@@ -17,14 +17,17 @@ source("UpdateLeagueL.R")
 source("UpdateLeagueS.R")
 source("UpdateLeagueT.R")
 source("StatsTeamData.R")
+source("Poisson.R")
+source("ZeroInflatedPoisson.R")
+source("Uniform.R")
+source("Geometric.R")
+source("NegativeBinomial.R")
+source("Weibull.R")
 
 seasons <- rev(GetSeasons())
-
-InitDB()
 country <- GetCountry()
 leagues <- GetLeagues()
 teams <- GetTeams()
-dbDisconnect(conn = ppConn)
 
 header <- dashboardHeader(
 
@@ -38,7 +41,8 @@ sidebar <- dashboardSidebar(
     menuItem("Stats Home Team", tabName = "statshometeam", icon = icon("dashboard")),
     menuItem("Stats Away Team", tabName = "statsawayteam", icon = icon("dashboard")),
     menuItem("Tables", tabName = "results", icon = icon("th")),
-    menuItem("Plots", tabName = "plots", icon = icon("database"))
+    menuItem("Distributions", tabName = "dists", icon = icon("database")),
+    menuItem("Forecast", tabName = "forecasts", icon = icon("database"))
     # menuItem("Widgets", icon = icon("th"), tabName = "widgets",
     #          badgeLabel = "new", badgeColor = "green")
   ),
@@ -47,23 +51,23 @@ sidebar <- dashboardSidebar(
               label = "Choose a Country",
               choices = country,
               selected = country[1]),
-  
-  selectInput("leagueL", 
+
+  selectInput("leagueL",
               label = "Choose a League",
               choices = leagues,
               selected = leagues[1]),
 
-  selectInput("leagueS", 
+  selectInput("leagueS",
               label = "Choose a Season",
               choices = seasons,
               selected = seasons[1]),
 
-  selectInput("leagueTH", 
+  selectInput("leagueTH",
               label = "Choose a Home Team",
               choices = teams,
               selected = "Bayern Munich"),
 
-  selectInput("leagueTA", 
+  selectInput("leagueTA",
               label = "Choose a Away Team",
               choices = teams,
               selected = "Dortmund")
@@ -208,40 +212,44 @@ body <- dashboardBody(
 
     tabItem(tabName = "results",
 
-      column(10, offset = 1,
+      fluidRow(
 
-        tabsetPanel(
+        column(10, offset = 1,
 
-          tabPanel("Season Tables",
+          tabsetPanel(
 
-            h1(class = "text-center",
+            tabPanel("Season Tables",
 
-              textOutput(outputId = "seasonHeader")
+              h1(class = "text-center",
 
-            ),
-            DT::dataTableOutput("TABLES")
+                textOutput(outputId = "seasonHeader")
 
-          ),
-
-          tabPanel("Season Games",
-
-            h1(class = "text-center",
-
-              textOutput(outputId = "gamesHeader")
+              ),
+              DT::dataTableOutput("TABLES")
 
             ),
-            DT::dataTableOutput("GAMES")
 
-          ),
+            tabPanel("Season Games",
 
-          tabPanel("Home vs. Away",
+              h1(class = "text-center",
 
-            h1(class = "text-center",
+                textOutput(outputId = "gamesHeader")
 
-              textOutput(outputId = "vsHeader")
+              ),
+              DT::dataTableOutput("GAMES")
 
             ),
-            DT::dataTableOutput("VS")
+
+            tabPanel("Home vs. Away",
+
+              h1(class = "text-center",
+
+                textOutput(outputId = "vsHeader")
+
+              ),
+              DT::dataTableOutput("VS")
+
+            )
 
           )
 
@@ -251,33 +259,149 @@ body <- dashboardBody(
 
     ),
 
-    tabItem(tabName = "plots",
+    tabItem(tabName = "dists",
 
-      column(10, offset = 1,
+      fluidRow(
 
-        tabsetPanel(
+        column(10, offset = 1,
 
-          tabPanel("Season Plots",
+          tabsetPanel(
 
-            h1(class = "text-center",
+            tabPanel("Poisson",
 
-              textOutput(outputId = "seasonPlotHeader")
+              h1(class = "text-center",
+
+                "Poisson Distribution"
+
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvaluePoisson")
+
+              ),
+
+              plotOutput(outputId = "pDistPoisson"),
+              DT::dataTableOutput("Poisson")
 
             ),
-            plotOutput("seasonPlot")
 
-          ),
+            tabPanel("Zero-Inflated-Poisson",
 
-          tabPanel("Home vs. Away Plot",
+              h1(class = "text-center",
 
-            h1(class = "text-center",
+                "Zero-Inflated-Poisson Distribution"
 
-              textOutput(outputId = "vsPlotHeader")
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvalueZIP")
+
+              ),
+
+              plotOutput(outputId = "pDistZIP"),
+              DT::dataTableOutput("ZIP")
 
             ),
-            plotOutput("vsPlot")
+
+            tabPanel("Uniform",
+
+              h1(class = "text-center",
+
+                "Uniform Distribution"
+
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvalueUniform")
+
+              ),
+
+              plotOutput(outputId = "pDistUniform"),
+              DT::dataTableOutput("Uniform")
+
+            ),
+
+            tabPanel("Geometric",
+
+              h1(class = "text-center",
+
+                "Geometric Distribution"
+
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvalueGeometric")
+
+              ),
+
+              plotOutput(outputId = "pDistGeometric"),
+              DT::dataTableOutput("Geometric")
+
+            ),
+
+            tabPanel("Negative Binomial",
+
+              h1(class = "text-center",
+
+                "Negative Binomial Distribution"
+
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvalueNegBinom")
+
+              ),
+
+              plotOutput(outputId = "pDistNegBinom"),
+              DT::dataTableOutput("NegBinom")
+
+            ),
+
+            tabPanel("Weibull",
+
+              h1(class = "text-center",
+
+                "Weibull Distribution"
+
+              ),
+
+              h3(class = "text-center",
+
+                textOutput(outputId = "pvalueWeibull")
+
+              ),
+
+              plotOutput(outputId = "pDistWeibull"),
+              DT::dataTableOutput("Weibull")
+
+            )
 
           )
+
+        )
+
+      )
+
+    ),
+
+    tabItem(tabName = "forecasts",
+
+      fluidRow(
+
+        column(6, class = "text-center",
+
+          h1(textOutput("homeHeader"))
+
+        ),
+
+        column(6, class = "text-center",
+
+          h1(textOutput("awayHeader"))
 
         )
 
@@ -290,7 +414,7 @@ body <- dashboardBody(
 )
 
 shinyUI(
-  
+
   dashboardPage(header, sidebar, body, skin = "black")
 
 )

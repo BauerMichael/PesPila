@@ -15,7 +15,7 @@ GetSeasons <- function(country = "Germany", league = "1. Bundesliga") {
   
 	query <- paste0("select distinct Season from ", country, " where Div = '", league, "'")
 
-	if (league == "All") {query <- paste0("select distinct Season from ", country, "'")}
+	if (league == "All") {query <- paste0("select distinct Season from ", country)}
 	
 	data <- dbGetQuery(conn = ppConn, statement = query)
 

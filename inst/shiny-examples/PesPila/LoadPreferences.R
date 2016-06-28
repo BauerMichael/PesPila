@@ -8,8 +8,12 @@ LoadPreferences <- function() {
 	#
 	#	Return: No return value.
 
+	InitDB()
+
 	query <- "select name from sqlite_master where type='table'"
 	data <- dbGetQuery(conn = ppConn, statement =  query)
+
+	dbDisconnect(conn = etestconn)
 
 	return (data)
 

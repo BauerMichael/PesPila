@@ -8,8 +8,12 @@ GetCountry <- function() {
 	#
 	#	Return: Returns a vector with all possible countries to select.
 
+	InitDB()
+
 	query <- "select distinct Country from cData"
 	data <- dbGetQuery(conn = ppConn, statement = query)
+
+	dbDisconnect(conn = ppConn)
 
 	return (as.character(data[, "Country"]))
 
