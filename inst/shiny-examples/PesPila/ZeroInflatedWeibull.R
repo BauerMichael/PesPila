@@ -1,7 +1,7 @@
 # All possible seasons are selected from the database for a country and leage. Copyright by Michael Bauer.
 #
 # Functions available:
-# 	- Weibull(country, league)
+# 	- ZIW(country, league)
 
 dziweibull <- function(x, shape, scale, phi) {
 	zip <- c()
@@ -26,7 +26,7 @@ OptParsWeibull <- function(pars, A, B, C, D) {
 	return (E)
 }
 
-Weibull <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
+ZIW <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 	# Get seasons in a given country for a given league.
 	#
 	#	country: A selected counrty (string).
@@ -86,9 +86,12 @@ Weibull <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 	comp <- 1 - sum(data$NewProbs)
 	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)
 
+	# index <- which(data$Predicted != 0)
+	# chi <- sum((data$RelFreq[index]-data$Predicted[index])^2 / data$Predicted[index])
+	# pval <- 1 - pchisq(chi, df = length(index) - 1)
 
 	output <- list("Table" = data, "ChiSquare" = test, "Normal" = as.numeric(data$Freq/sum(data$Freq)), "shape" = shape, "scale" = scale, "phi" = phi)
 
 	return (output)
 
-}  # END Weibull
+}  # END ZIW

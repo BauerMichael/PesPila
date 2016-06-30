@@ -22,7 +22,7 @@ source("ZeroInflatedPoisson.R")
 source("Uniform.R")
 source("Geometric.R")
 source("NegativeBinomial.R")
-source("Weibull.R")
+source("ZeroInflatedWeibull.R")
 
 seasons <- rev(GetSeasons())
 country <- GetCountry()
@@ -362,11 +362,11 @@ body <- dashboardBody(
 
             ),
 
-            tabPanel("Weibull",
+            tabPanel("Zero-Inflated-Weibull",
 
               h1(class = "text-center",
 
-                "Weibull Distribution"
+                "Zero-Inflated-Weibull Distribution"
 
               ),
 
@@ -377,7 +377,7 @@ body <- dashboardBody(
               ),
 
               plotOutput(outputId = "pDistWeibull"),
-              DT::dataTableOutput("Weibull")
+              DT::dataTableOutput("ZIW")
 
             )
 

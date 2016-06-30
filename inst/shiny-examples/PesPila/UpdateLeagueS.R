@@ -13,6 +13,9 @@ UpdateLeagueS <- function(session, country = "Germany", league = "1. Bundesliga"
 	  updateSelectInput(session = session, inputId = "leagueS",
 	                    choices = c("All", seas),
 	                    selected = season)
+	} else if (season == "All") {
+		updateSelectInput(session = session, inputId = "leagueS",
+	                    choices = c("All", seas))
 	} else {
 		updateSelectInput(session = session, inputId = "leagueS",
 	                    choices = c("All", seas),

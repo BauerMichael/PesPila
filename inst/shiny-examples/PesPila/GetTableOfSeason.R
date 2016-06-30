@@ -12,12 +12,14 @@ GetTableOfSeason <- function(data) {
   
   teams <- unique(data[, "HomeTeam"])
   len <- length(teams)
-  games <- 2 * nrow(data) / len
-  stats <- list("Team" = teams, "Games" = rep(x = games, times = len), "Won" = c(), "Draw" = c(), "Lost" = c(),
+  # games <- 2 * nrow(data) / len
+  stats <- list("Team" = teams, "Games" = c(), "Won" = c(), "Draw" = c(), "Lost" = c(),
   							"Goals" = c(), "Diff" = c(), "Points" = c())
 
   for (team in teams) {  # FOR
 
+    games <- length(which(data[, "HomeTeam"] == team | data[, "AwayTeam"] == team))
+    stats$Games <- c(stats$Games, games)
   	won <- length(which((data[, "HomeTeam"] == team & data[, "FTR"] == "H") | (data[, "AwayTeam"] == team & data[, "FTR"] == "A")))
   	draw <- length(which((data[, "HomeTeam"] == team & data[, "FTR"] == "D") | (data[, "AwayTeam"] == team & data[, "FTR"] == "D")))
   	sGoal <- sum(as.numeric(data[which(data[, "HomeTeam"] == team), "FTHG"])) + sum(as.numeric(data[which(data[, "AwayTeam"] == team), "FTAG"]))

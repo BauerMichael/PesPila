@@ -14,12 +14,11 @@ GetLeagueTable <- function(country = "Germany", league = "1. Bundesliga", season
   
 	InitDB()
 	
-	query <- "select * from cData"
 	query <- paste0("select * from ", country, " where Div = '", league, "' and Season = '", season, "'")
 	
-	if (league == "All" && season != "All") {query <- paste0("select * from ", country, "' where Season = '", season, "'")}
-	if (season == "All" && league != "All") {query <- paste0("select * from ", country, "' where Season = '", season, "'")}
-	if (league == "All" && season == "All") {query <- paste0("select * from ", country, "'")}
+	if (league == "All" && season != "All") {query <- paste0("select * from ", country, " where Season = '", season, "'")}
+	if (season == "All" && league != "All") {query <- paste0("select * from ", country, " where Div = '", league, "'")}
+	if (league == "All" && season == "All") {query <- paste0("select * from ", country)}
 	
 	data <- dbGetQuery(conn = ppConn, statement = query)
 	

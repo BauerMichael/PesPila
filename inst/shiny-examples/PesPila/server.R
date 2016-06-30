@@ -230,9 +230,9 @@ shinyServer(function(input, output, session) {
   
   })
 
-  output$Weibull <- DT::renderDataTable({
+  output$ZIW <- DT::renderDataTable({
 
-    data <- Weibull(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+    data <- ZIW(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
 
     output$pDistWeibull <- renderPlot({
 
