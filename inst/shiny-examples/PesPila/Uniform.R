@@ -14,7 +14,7 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 
 	InitDB()
 
-	data <- data.frame("Goals" = 0:5, "Frequencies" = rep(x = 0, times = 6), "Probabilities" = rep(x = 0, times = 6))
+	data <- data.frame("Goals" = 0:5, "Freq" = rep(x = 0, times = 6), "NewProbs" = rep(x = 0, times = 6))
 
 	for (i in 0:5) {
 
@@ -26,6 +26,11 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 		# away <- paste0("(select count(FTAG) from `", country, "` where `Season` like '%", season, "%' and `AwayTeam` like '%", team, "%' and `FTAG` like '%", i, "%')")
 		home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "' and Season = '", season, "') + ")
 		away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "' and Season = '", season, "')")
+
+		if (season == "All") {
+			home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "') + ")
+			away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "')")
+		}
 		
 		if (i == 5) {  # IF
 
@@ -34,22 +39,29 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 			home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG >= '", i, "' and Season = '", season, "') + ")
 			away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "' and Season = '", season, "')")
 
+			if (season == "All") {
+				home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG >= '", i, "') + ")
+				away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "')")
+			}
+
 		}  # END IF
 
 		query <- paste0("select ", home, away, " as SumCount")
-		data[i+1, "Frequencies"] <- as.numeric(dbGetQuery(conn = ppConn, statement = query)[1, "SumCount"])
+		data[i+1, "Freq"] <- as.numeric(dbGetQuery(conn = ppConn, statement = query)[1, "SumCount"])
 
 	}
 
 	dbDisconnect(conn = ppConn)
 
-	lambda <- (sum(data$Goals*data$Frequencies))/sum(data$Frequencies)
+	# data$Freq <- c(6, 4, 4, 2, 0, 0)
+
+	lambda <- (sum(data$Goals*data$Freq))/sum(data$Freq)
 	a <- 0
 	b <- round(2*lambda, 0)
 	ba <- b-a+1
 
-	data$Probabilities[which(data$Goals <= b)] <- 1/ba
-	data$Predicted <- round(data$Probabilities*sum(data$Frequencies), 5)
+	data$NewProbs[which(data$Goals <= b)] <- 1/ba
+	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
 	index <- which(data$Predicted != 0)
 
@@ -59,10 +71,17 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 
 	}
 
-	chi <- sum((data$Frequencies[index]-data$Predicted[index])^2 / data$Predicted[index])
-	pval <- 1 - pchisq(chi, df = length(index) - 1)
+	# comp <- 1 - sum(data$NewProbs[index])
+	# test <- chisq.test(x = c(data$Freq[index], 0), p = c(data$NewProbs[index], comp), simulate.p.value = TRUE)
 
-	output <- list("Table" = data, "ChiSquare" = pval, "Normal" = as.numeric(data$Frequencies/sum(data$Frequencies)), "a" = a, "b" = b)
+	chi <- sum((data$Freq[index]-data$Predicted[index])^2 / data$Predicted[index])
+	pval <- 1 - pchisq(chi, df = length(index) - 1)
+	test <- list("p.value" = pval)
+
+	# print(test)
+
+	output <- list("Table" = data, "ChiSquare" = test, "Normal" = as.numeric(data$Freq/sum(data$Freq)), "a" = a, "b" = b)
+	# output <- list("Table" = data, "ChiSquare" = pval, "Normal" = as.numeric(data$Freq/sum(data$Freq)), "a" = a, "b" = b)
 
 	return (output)
 

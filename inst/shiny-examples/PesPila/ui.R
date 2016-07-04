@@ -37,9 +37,11 @@ header <- dashboardHeader(
 
 sidebar <- dashboardSidebar(
 
+  tags$link(rel = "stylesheet", type = "text/css", href = "/css/styles.css"),
+
   sidebarMenu(
-    menuItem("Stats Home Team", tabName = "statshometeam", icon = icon("dashboard")),
-    menuItem("Stats Away Team", tabName = "statsawayteam", icon = icon("dashboard")),
+    menuItem("Statistics", tabName = "statistics", icon = icon("dashboard")),
+    # menuItem("Stats Away Team", tabName = "statsawayteam", icon = icon("dashboard")),
     menuItem("Tables", tabName = "results", icon = icon("th")),
     menuItem("Distributions", tabName = "dists", icon = icon("database")),
     menuItem("Forecast", tabName = "forecasts", icon = icon("database"))
@@ -65,12 +67,12 @@ sidebar <- dashboardSidebar(
   selectInput("leagueTH",
               label = "Choose a Home Team",
               choices = teams,
-              selected = "Bayern Munich"),
+              selected = teams[1]),
 
   selectInput("leagueTA",
               label = "Choose a Away Team",
               choices = teams,
-              selected = "Dortmund")
+              selected = teams[2])
 
 )
 
@@ -78,13 +80,13 @@ body <- dashboardBody(
 
   tabItems(
 
-    tabItem(tabName = "statshometeam",
+    tabItem(tabName = "statistics",
 
       fluidRow(
 
         box(width = 4,
             title = textOutput("seasonHeaderAllHome"),
-            background = "navy",
+            background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
             plotOutput("allSeasonGamesHome", height = 300)
@@ -93,7 +95,7 @@ body <- dashboardBody(
 
         box(width = 4,
             title = textOutput("seasonHeaderHomeHome"),
-            background = "navy",
+            background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
             plotOutput("homeSeasonGamesHome", height = 300)
@@ -102,7 +104,7 @@ body <- dashboardBody(
 
         box(width = 4,
             title = textOutput("seasonHeaderAwayHome"),
-            background = "navy",
+            background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
             plotOutput("awaySeasonGamesHome", height = 300)
@@ -110,41 +112,6 @@ body <- dashboardBody(
         )
 
       ),
-
-      fluidRow(
-
-        box(width = 4,
-            title = textOutput("overallHeaderAllHome"),
-            background = "navy",
-            solidHeader = TRUE,
-            collapsible = TRUE,
-            plotOutput("allGamesHome", height = 300)
-
-        ),
-
-        box(width = 4,
-              title = textOutput("overallHeaderHomeHome"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("homeGamesHome", height = 300)
-
-        ),
-
-        box(width = 4,
-              title = textOutput("overallHeaderAwayHome"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("awayGamesHome", height = 300)
-
-        )
-
-      )
-
-    ),
-
-    tabItem(tabName = "statsawayteam",
 
       fluidRow(
 
@@ -158,20 +125,51 @@ body <- dashboardBody(
         ),
 
         box(width = 4,
+              title = textOutput("seasonHeaderAwayAway"),
+              background = "navy",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotOutput("awayGamesAway", height = 300)
+
+        ),
+
+        box(width = 4,
               title = textOutput("seasonHeaderHomeAway"),
               background = "navy",
               solidHeader = TRUE,
               collapsible = TRUE,
               plotOutput("homeGamesAway", height = 300)
 
+        )
+
+      ),
+
+      fluidRow(
+
+        box(width = 4,
+            title = textOutput("overallHeaderAllHome"),
+            background = "light-blue",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            plotOutput("allGamesHome", height = 300)
+
         ),
 
         box(width = 4,
-              title = textOutput("seasonHeaderAwayAway"),
-              background = "navy",
+              title = textOutput("overallHeaderHomeHome"),
+              background = "light-blue",
               solidHeader = TRUE,
               collapsible = TRUE,
-              plotOutput("awayGamesAway", height = 300)
+              plotOutput("homeGamesHome", height = 300)
+
+        ),
+
+        box(width = 4,
+              title = textOutput("overallHeaderAwayHome"),
+              background = "light-blue",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotOutput("awayGamesHome", height = 300)
 
         )
 
@@ -189,20 +187,20 @@ body <- dashboardBody(
         ),
 
         box(width = 4,
-              title = textOutput("overallHeaderHomeAway"),
-              background = "navy",
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("homeSeasonGamesAway", height = 300)
-
-        ),
-
-        box(width = 4,
               title = textOutput("overallHeaderAwayAway"),
               background = "navy",
               solidHeader = TRUE,
               collapsible = TRUE,
               plotOutput("awaySeasonGamesAway", height = 300)
+
+        ),
+
+        box(width = 4,
+              title = textOutput("overallHeaderHomeAway"),
+              background = "navy",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotOutput("homeSeasonGamesAway", height = 300)
 
         )
 
@@ -225,7 +223,7 @@ body <- dashboardBody(
                 textOutput(outputId = "seasonHeader")
 
               ),
-              DT::dataTableOutput("TABLES")
+              DT::dataTableOutput("Tables")
 
             ),
 
@@ -236,7 +234,7 @@ body <- dashboardBody(
                 textOutput(outputId = "gamesHeader")
 
               ),
-              DT::dataTableOutput("GAMES")
+              DT::dataTableOutput("Games")
 
             ),
 
@@ -247,7 +245,7 @@ body <- dashboardBody(
                 textOutput(outputId = "vsHeader")
 
               ),
-              DT::dataTableOutput("VS")
+              DT::dataTableOutput("vs")
 
             )
 
@@ -360,25 +358,6 @@ body <- dashboardBody(
               plotOutput(outputId = "pDistNegBinom"),
               DT::dataTableOutput("NegBinom")
 
-            ),
-
-            tabPanel("Zero-Inflated-Weibull",
-
-              h1(class = "text-center",
-
-                "Zero-Inflated-Weibull Distribution"
-
-              ),
-
-              h3(class = "text-center",
-
-                textOutput(outputId = "pvalueWeibull")
-
-              ),
-
-              plotOutput(outputId = "pDistWeibull"),
-              DT::dataTableOutput("ZIW")
-
             )
 
           )
@@ -391,17 +370,30 @@ body <- dashboardBody(
 
     tabItem(tabName = "forecasts",
 
+      # fluidRow(
+
+      #   column(6, class = "text-center",
+
+      #     h1(textOutput("homeHeader")),
+      #     dataTableOutput("homeHTML")
+
+      #   ),
+
+      #   column(6, class = "text-center",
+
+      #     h1(textOutput("awayHeader")),
+      #     dataTableOutput("awayHTML")
+
+      #   )
+
+      # ),
+
       fluidRow(
 
-        column(6, class = "text-center",
+        column(8, offset = 2, class = "text-center",
 
-          h1(textOutput("homeHeader"))
-
-        ),
-
-        column(6, class = "text-center",
-
-          h1(textOutput("awayHeader"))
+          h1("Forecast"),
+          dataTableOutput("matchingTable")
 
         )
 

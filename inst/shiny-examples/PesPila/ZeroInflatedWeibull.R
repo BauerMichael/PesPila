@@ -22,7 +22,7 @@ dziweibull <- function(x, shape, scale, phi) {
 }
 
 OptParsWeibull <- function(pars, A, B, C, D) {
-	E <- sum(A*B*(dziweibull(x = C, shape = pars[1], scale = pars[2], phi = pars[3])-D)^2)
+	E <- sum(A*B*(dziweibull(x = C, shape = pars["shape"], scale = pars["scale"], phi = pars["phi"])-D)^2)
 	return (E)
 }
 
@@ -36,9 +36,9 @@ ZIW <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 	#	Return: Returns a vector with all possible seasons to select.
 
 	scale <- 1
-	shape <- 1
-	phi <- 0.5
-	pars <- c(scale = scale, shape = shape, phi = phi)
+	shape <- 2
+	phi <- 1
+	pars <- c(shape = shape, scale = scale, phi = phi)
 
 	data <- data.frame("Goals" = 0:5, "Freq" = rep(x = 0, times = 6))
 
@@ -75,20 +75,23 @@ ZIW <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 	data$WeightedSquareDev <- round(data$Freq*data$FreqWeight*data$SquareDev, 5)
 	
 	Opt <- optim(pars, OptParsWeibull, A = data$Freq, B = data$FreqWeight, C = data$Goals, D = data$RelFreq)
-	shape <- Opt$par[1]
-	scale <- Opt$par[2]
-	phi <- Opt$par[3]
+	shape <- Opt$par["shape"]
+	scale <- Opt$par["scale"]
+	phi <- Opt$par["phi"]
 
 	data$NewProbs <- round(dziweibull(x = data$Goals, shape = shape, scale = scale, phi = phi), 5)
-	data$NewProbs[1] <- data$NewProbs[1]+0.00001
+	# data$NewProbs[1] <- data$NewProbs[1]+0.00001
 	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
-	comp <- 1 - sum(data$NewProbs)
-	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)
+	index <- which(data$NewProbs != 0)
+	comp <- 1 - sum(data$NewProbs[index])
+	test <- chisq.test(x = c(data$Freq[index], 0), p = c(data$NewProbs[index], comp), simulate.p.value = TRUE)
+	# test <- chisq.test(x = c(data$Freq[index], 0), p = c(data$NewProbs[index], comp), simulate.p.value = TRUE)
 
 	# index <- which(data$Predicted != 0)
-	# chi <- sum((data$RelFreq[index]-data$Predicted[index])^2 / data$Predicted[index])
-	# pval <- 1 - pchisq(chi, df = length(index) - 1)
+	# chi <- sum((data$Freq-data$Predicted)^2 / data$Predicted)
+	# pval <- 1 - pchisq(chi, df = nrow(data) - 1)
+	# print(c(chi, pval))
 
 	output <- list("Table" = data, "ChiSquare" = test, "Normal" = as.numeric(data$Freq/sum(data$Freq)), "shape" = shape, "scale" = scale, "phi" = phi)
 
