@@ -12,3 +12,8 @@ label {
 #homeHTML, #awayHTML, #matchingTable {
 	text-align: left;
 }
+#matchingTable, #matchingTableA {
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}

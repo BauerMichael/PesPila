@@ -1,12 +1,26 @@
 shinyServer(function(input, output, session) {
 
+  ranges <- reactiveValues(x = NULL, y = NULL)
+
+  observeEvent(input$plot1_dblclick, {
+    brush <- input$plot1_brush
+    if (!is.null(brush)) {
+      ranges$x <- c(brush$xmin, brush$xmax)
+      ranges$y <- c(brush$ymin, brush$ymax)
+
+    } else {
+      ranges$x <- NULL
+      ranges$y <- NULL
+    }
+  })
+
   observe({input$leagueC
 
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
       UpdateLeagueL(session = session, country = input$leagueC, league = input$leagueL)
-      UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
-      UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      # UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      # UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
 
     })
 
@@ -23,6 +37,17 @@ shinyServer(function(input, output, session) {
 
   })
 
+  observe({input$leagueS
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      # UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+
+    })
+
+  })
+
   output$Poisson <- DT::renderDataTable({
 
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
@@ -33,9 +58,11 @@ shinyServer(function(input, output, session) {
 
         output$pDistPoisson <- renderPlot({
 
-          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
-               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
-          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+          ggplot(data$Table, aes(Goals, Freq/sum(Freq))) + geom_line(colour = "blue") + geom_line(aes(Goals, NewProbs), colour = "red") + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+          # ggplot(data$Table)
+          # plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+          #      ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          # lines(data$Table$Goals, data$Table$NewProbs, col = "red")
 
         })
 
@@ -84,9 +111,10 @@ shinyServer(function(input, output, session) {
 
         output$pDistZIP <- renderPlot({
 
-          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
-               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
-          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+          ggplot(data$Table, aes(Goals, Freq/sum(Freq))) + geom_line(colour = "blue") + geom_line(aes(Goals, NewProbs), colour = "red") + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+          # plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+          #      ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          # lines(data$Table$Goals, data$Table$NewProbs, col = "red")
 
         })
 
@@ -278,6 +306,261 @@ shinyServer(function(input, output, session) {
   
   })
 
+  output$PoissonA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+
+        data <- Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+
+        output$pDistPoissonA <- renderPlot({
+
+          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+        })
+
+        output$pvaluePoissonA <- renderText({
+
+          h0 <- ""
+          if (data$ChiSquare$p.value > 0.05) {
+
+            h0 <- "Accepting null-hypothesis for "
+
+          } else {
+
+            h0 <- "Rejecting null-hypothesis for "
+
+          }
+
+          paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+
+        })
+
+        datatable(data$Table,
+            rownames = FALSE, escape = FALSE,
+            extensions = c('ColReorder', 'ColVis', 'Responsive'),
+            options = list(pageLength = -1,
+                lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                searchHighlight = TRUE,
+                dom = 'TRCSlfrtip<"clear">',
+                colReorder = list(realtime = TRUE)
+            )
+        )
+
+      }
+
+    })
+  
+  })
+
+  output$ZIPA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+
+        data <- ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+
+        output$pDistZIPA <- renderPlot({
+
+          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+        })
+
+        output$pvalueZIPA <- renderText({
+
+          h0 <- ""
+          if (data$ChiSquare$p.value > 0.05) {
+
+            h0 <- "Accepting null-hypothesis for "
+
+          } else {
+
+            h0 <- "Rejecting null-hypothesis for "
+
+          }
+
+          paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
+
+        })
+
+        datatable(data$Table,
+            rownames = FALSE, escape = FALSE,
+            extensions = c('ColReorder', 'ColVis', 'Responsive'),
+            options = list(pageLength = -1,
+                lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                searchHighlight = TRUE,
+                dom = 'TRCSlfrtip<"clear">',
+                colReorder = list(realtime = TRUE)
+            )
+        )
+
+      }
+
+    })
+  
+  })
+
+  output$UniformA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+
+        data <- Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+
+        output$pDistUniformA <- renderPlot({
+
+          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+        })
+
+        output$pvalueUniformA <- renderText({
+
+          h0 <- ""
+          if (data$ChiSquare$p.value > 0.05) {
+
+            h0 <- "Accepting null-hypothesis for "
+
+          } else {
+
+            h0 <- "Rejecting null-hypothesis for "
+
+          }
+
+          paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " and a = ", data$a, ", b = ", data$b)
+
+        })
+
+        datatable(data$Table,
+            rownames = FALSE, escape = FALSE,
+            extensions = c('ColReorder', 'ColVis', 'Responsive'),
+            options = list(pageLength = -1,
+                lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                searchHighlight = TRUE,
+                dom = 'TRCSlfrtip<"clear">',
+                colReorder = list(realtime = TRUE)
+            )
+        )
+
+      }
+
+    })
+  
+  })
+
+  output$GeometricA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+
+        data <- Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+
+        output$pDistGeometricA <- renderPlot({
+
+          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+        })
+
+        output$pvalueGeometricA <- renderText({
+
+          h0 <- ""
+          if (data$ChiSquare$p.value > 0.05) {
+
+            h0 <- "Accepting null-hypothesis for "
+
+          } else {
+
+            h0 <- "Rejecting null-hypothesis for "
+
+          }
+
+          paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+
+        })
+
+        datatable(data$Table,
+            rownames = FALSE, escape = FALSE,
+            extensions = c('ColReorder', 'ColVis', 'Responsive'),
+            options = list(pageLength = -1,
+                lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                searchHighlight = TRUE,
+                dom = 'TRCSlfrtip<"clear">',
+                colReorder = list(realtime = TRUE)
+            )
+        )
+
+      }
+
+    })
+  
+  })
+
+  output$NegBinomA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+
+        data <- NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+
+        output$pDistNegBinomA <- renderPlot({
+
+          plot(data$Table$Goals, data$Normal, type = "l", col = "blue",
+               ylim = c(min(data$Normal, data$Table$NewProbs), max(data$Normal, data$Table$NewProbs)))
+          lines(data$Table$Goals, data$Table$NewProbs, col = "red")
+
+        })
+
+        output$pvalueNegBinomA <- renderText({
+
+          h0 <- ""
+          if (data$ChiSquare$p.value > 0.05) {
+
+            h0 <- "Accepting null-hypothesis for "
+
+          } else {
+
+            h0 <- "Rejecting null-hypothesis for "
+
+          }
+
+          paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
+
+        })
+
+        datatable(data$Table,
+            rownames = FALSE, escape = FALSE,
+            extensions = c('ColReorder', 'ColVis', 'Responsive'),
+            options = list(pageLength = -1,
+                lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                searchHighlight = TRUE,
+                dom = 'TRCSlfrtip<"clear">',
+                colReorder = list(realtime = TRUE)
+            )
+        )
+
+      }
+
+    })
+  
+  })
+
   output$Games <- DT::renderDataTable({
 
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
@@ -351,44 +634,62 @@ shinyServer(function(input, output, session) {
   output$seasonHeader <- renderText({paste0("Table of ", input$leagueL, " - Season ", input$leagueS)})
   output$vsHeader <- renderText({paste0(input$leagueTH, " vs. ", input$leagueTA)})
 
-  observeEvent(eventExpr = c(input$leagueC, input$leagueL, input$leagueS, input$leagueTH, input$leagueTA), {
+  # observeEvent(eventExpr = input$leagueTH, {
 
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
     
-      output$allGamesHome <- renderPlot({
+  #     output$allGamesHome <- renderPlot({
 
-        home <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "HomeTeam")
-        away <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "AwayTeam")
-        all <- home + away
-        barplot(all, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(all)+50))
+  #       home <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "HomeTeam")
+  #       away <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "AwayTeam")
+  #       all <- home + away
+  #       barplot(all, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(all)+50))
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderAllHome <- renderText({header})
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderAllHome <- renderText({header})
 
-      })
+  #     })
 
-      output$homeGamesHome <- renderPlot({
+  #   })
 
-        home <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "HomeTeam")
-        barplot(home, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(home)+50))
+  # })
+  # observeEvent(eventExpr = input$leagueTH, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Home Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderHomeHome <- renderText({header})
+  #     output$homeGamesHome <- renderPlot({
 
-      })
+  #       home <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "HomeTeam")
+  #       barplot(home, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(home)+50))
 
-      output$awayGamesHome <- renderPlot({
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Home Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderHomeHome <- renderText({header})
 
-        away <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "AwayTeam")
-        barplot(away, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(away)+50))
+  #     })
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Away Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderAwayHome <- renderText({header})
+  #   })
 
-      })
+  # })
+  # observeEvent(eventExpr = input$leagueTH, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+  #     output$awayGamesHome <- renderPlot({
+
+  #       away <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "AwayTeam")
+  #       barplot(away, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(away)+50))
+
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Away Games of ", input$leagueTH, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderAwayHome <- renderText({header})
+
+  #     })
+
+  #   })
+
+  # })
+  observeEvent(eventExpr = input$leagueTH, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
       output$allSeasonGamesHome <- renderPlot({
 
@@ -402,6 +703,12 @@ shinyServer(function(input, output, session) {
 
       })
 
+    })
+
+  })
+  observeEvent(eventExpr = input$leagueTH, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
       output$homeSeasonGamesHome <- renderPlot({
 
         home <- StatsTeamData(country = input$leagueC, team = input$leagueTH, locus = "HomeTeam", season = input$leagueS)
@@ -411,6 +718,12 @@ shinyServer(function(input, output, session) {
         output$seasonHeaderHomeHome <- renderText({header})
 
       })
+
+    })
+
+  })
+  observeEvent(eventExpr = input$leagueTH, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
       output$awaySeasonGamesHome <- renderPlot({
 
@@ -422,40 +735,64 @@ shinyServer(function(input, output, session) {
 
       })
 
-      output$allSeasonGamesAway <- renderPlot({
+    })
 
-        home <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "HomeTeam")
-        away <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "AwayTeam")
-        all <- home + away
-        barplot(all, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(all)+50))
+  })
+  # observeEvent(eventExpr = c(input$leagueC, input$leagueL, input$leagueS, input$leagueTH, input$leagueTA), {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderAllAway <- renderText({header})
+  #     output$allSeasonGamesAway <- renderPlot({
 
-      })
+  #       home <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "HomeTeam")
+  #       away <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "AwayTeam")
+  #       all <- home + away
+  #       barplot(all, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(all)+50))
 
-      output$homeSeasonGamesAway <- renderPlot({
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderAllAway <- renderText({header})
 
-        home <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "HomeTeam")
-        barplot(home, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(home)+50))
+  #     })
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Home Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderHomeAway <- renderText({header})
+  #   })
 
-      })
+  # })
+  # observeEvent(eventExpr = c(input$leagueC, input$leagueL, input$leagueS, input$leagueTH, input$leagueTA), {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-      output$awaySeasonGamesAway <- renderPlot({
+  #     output$homeSeasonGamesAway <- renderPlot({
 
-        away <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "AwayTeam")
-        barplot(away, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(away)+50))
+  #       home <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "HomeTeam")
+  #       barplot(home, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(home)+50))
 
-        seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
-        header <- paste0("Away Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
-        output$overallHeaderAwayAway <- renderText({header})
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Home Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderHomeAway <- renderText({header})
 
-      })
+  #     })
+
+  #   })
+
+  # })
+  # observeEvent(eventExpr = c(input$leagueC, input$leagueL, input$leagueS, input$leagueTH, input$leagueTA), {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+  #     output$awaySeasonGamesAway <- renderPlot({
+
+  #       away <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "AwayTeam")
+  #       barplot(away, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(away)+50))
+
+  #       seasons <- GetSeasons(country = input$leagueC, league = input$leagueL)
+  #       header <- paste0("Away Games of ", input$leagueTA, " ", seasons[1], " to ", seasons[length(seasons)])
+  #       output$overallHeaderAwayAway <- renderText({header})
+
+  #     })
+
+  #   })
+
+  # })
+  observeEvent(eventExpr = input$leagueTA, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
       output$allGamesAway <- renderPlot({
 
@@ -469,6 +806,12 @@ shinyServer(function(input, output, session) {
 
       })
 
+    })
+
+  })
+  observeEvent(eventExpr = input$leagueTA, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
       output$homeGamesAway <- renderPlot({
 
         home <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "HomeTeam", season = input$leagueS)
@@ -479,12 +822,18 @@ shinyServer(function(input, output, session) {
 
       })
 
+    })
+
+  })
+  observeEvent(eventExpr = input$leagueTA, {
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
       output$awayGamesAway <- renderPlot({
 
         away <- StatsTeamData(country = input$leagueC, team = input$leagueTA, locus = "AwayTeam", season = input$leagueS)
         barplot(away, ylab = "Number of games", col = c("#00AA00", "#8CA3B1", "#FF0000"), ylim = c(0, max(away)+10))
 
-        header <- paste0("Away Games of ", input$leagueTH, " ", input$leagueS)
+        header <- paste0("Away Games of ", input$leagueTA, " ", input$leagueS)
         output$seasonHeaderAwayAway <- renderText({header})
 
       })
@@ -597,40 +946,124 @@ shinyServer(function(input, output, session) {
           }
         }
       }
-      draw <- round(draw, 2)
-      aWin <- round(aWin, 2)
-      hWin <- round(hWin, 2)
 
-      print(max(mat))
       colnames(mat) <- 0:5
       rownames(mat) <- 0:5
-      mat$Probs <- round(c(NA, NA, NA, hWin, draw, aWin), 2)
-      mat$Odds <- round(c(NA, NA, NA, (100/hWin)-1, (100/draw)-1, (100/aWin)-1), 2)
 
-      # data <- data.frame("Model" = c("Poisson Distribution", "Zero-Inflated-Poisson Distribution", "Uniform Distribution", "Geometric Distribution", "Negative-Binomial Distribution"),
-      #                    "Home" = hVec, "Away" = aVec, "Probs" = c(NA, NA, hWin, draw, aWin),
-      #                    "Odds" = c(NA, NA, (1/hWin)-1, (1/draw)-1, (1/aWin)-1))
-      # colnames(data) <- c("Model", input$leagueTH, input$leagueTA)
+      med <- (max(mat) - min(mat))/2
+
+      for (i in 1:nrow) {
+        for (j in 1:ncol) {
+          if (mat[i,j] > med) {
+            mat[i,j] <- paste0('<font style="background-color:red;color:white;">', mat[i,j], '</font>')
+          } else {
+            mat[i,j] <- paste0('<font style="background-color:#3c8dbc;color:white;">', mat[i,j], '</font>')
+          }
+        }
+      }
+
+      homeOdd <- if (round((100/hWin)-1, 2) < 1) {1.05} else {round((100/hWin)-1, 2)}
+      drawOdd <- if (round((100/draw)-1, 2) < 1) {1.05} else {round((100/draw)-1, 2)}
+      awayOdd <- if (round((100/aWin)-1, 2) < 1) {1.05} else {round((100/aWin)-1, 2)}
+
+      mat$Probs <- c("Home Win", hWin, "Draw", draw, "Away Win", aWin)
+      mat$Odds <- c("Home Win", homeOdd, "Draw", drawOdd, "Away Win", awayOdd)
 
       datatable(mat,
           rownames = TRUE,
+          escape = FALSE,
           extensions = c('Responsive')
       )
 
-      # data <- MatchingTable()
-      # val <- round(c(
-      #   Poisson(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-      #   ZIP(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-      #   Uniform(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare,
-      #   Geometric(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-      #   NBD(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value
-      # ), 3)
-      # data <- data.frame("Model" = c("Poisson Distribution", "Zero-Inflated-Poisson Distribution", "Uniform Distribution", "Geometric Distribution", "Negative-Binomial Distribution"),
-      #                    "p-value" = val)
-      # datatable(data,
-      #     rownames = FALSE,
-      #     extensions = c('Responsive')
-      # )
+    })
+
+  })
+
+  output$matchingTableA <- DT::renderDataTable({
+
+    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+      away <- list(
+        "Poisson" = Poisson(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
+        "ZIP" = ZIP(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
+        "Uniform" = Uniform(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
+        "Geometric" = Geometric(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
+        "NBD" = NBD(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE)
+      )
+
+      home <- list(
+        "Poisson" = Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
+        "ZIP" = ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
+        "Uniform" = Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
+        "Geometric" = Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
+        "NBD" = NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+      )
+
+      pHome <- 0
+      pAway <- 0
+      iHome <- 0
+      iAway <- 0
+      hVec <- c()
+      aVec <- c()
+      for (i in 1:length(home)) {
+        hVec <- c(hVec, home[[i]]$ChiSquare$p.value)
+        aVec <- c(aVec, away[[i]]$ChiSquare$p.value)
+        if (home[[i]]$ChiSquare$p.value > pHome) {
+          iHome <- i
+          pHome <- home[[i]]$ChiSquare$p.value
+        }
+        if (away[[i]]$ChiSquare$p.value > pAway) {
+          iAway <- i
+          pAway <- away[[i]]$ChiSquare$p.value
+        }
+      }
+
+      nrow <- nrow(home[[iHome]]$Table)
+      ncol <- nrow(away[[iAway]]$Table)
+      mat <- data.frame(matrix(0, nrow = nrow, ncol = ncol))
+      hLoose <- 0
+      aLoose <- 0
+      draw <- 0
+      for (i in 1:nrow) {
+        for (j in 1:ncol) {
+          mat[i, j] <- round(home[[iHome]]$Table$NewProbs[i]*away[[iAway]]$Table$NewProbs[j], 4)
+          if (i == j) {
+            draw <- draw + mat[i, j]*100
+          } else if (j > i) {
+            aLoose <- aLoose + mat[i, j]*100
+          } else {
+            hLoose <- hLoose + mat[i, j]*100
+          }
+        }
+      }
+
+      colnames(mat) <- 0:5
+      rownames(mat) <- 0:5
+
+      med <- (max(mat) - min(mat))/2
+
+      for (i in 1:nrow) {
+        for (j in 1:ncol) {
+          if (mat[i,j] > med) {
+            mat[i,j] <- paste0('<font style="background-color:red;color:white;">', mat[i,j], '</font>')
+          } else {
+            mat[i,j] <- paste0('<font style="background-color:#3c8dbc;color:white;">', mat[i,j], '</font>')
+          }
+        }
+      }
+
+      homeOdd <- if (round((100/hLoose)-1, 2) < 1) {1.05} else {round((100/hLoose)-1, 2)}
+      drawOdd <- if (round((100/draw)-1, 2) < 1) {1.05} else {round((100/draw)-1, 2)}
+      awayOdd <- if (round((100/aLoose)-1, 2) < 1) {1.05} else {round((100/aLoose)-1, 2)}
+
+      mat$Probs <- c("Home Loose", hLoose, "Draw", draw, "Away Loose", aLoose)
+      mat$Odds <- c("Home Loose", homeOdd, "Draw", drawOdd, "Away Loose", awayOdd)
+
+      datatable(mat,
+          rownames = TRUE,
+          escape = FALSE,
+          extensions = c('Responsive')
+      )
 
     })
 

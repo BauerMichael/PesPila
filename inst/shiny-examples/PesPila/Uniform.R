@@ -3,7 +3,7 @@
 # Functions available:
 # 	- Uniform(country, league)
 
-Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
+Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16', against = FALSE) {
 	# Get seasons in a given country for a given league.
 	#
 	#	country: A selected counrty (string).
@@ -31,6 +31,11 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 			home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "') + ")
 			away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "')")
 		}
+
+		if (against) {
+			home <- paste0("(select count(FTAG) from ", country, " where HomeTeam = '", team, "' and FTAG = '", i, "' and Season = '", season, "') + ")
+			away <- paste0("(select count(FTHG) from ", country, " where AwayTeam = '", team, "' and FTHG = '", i, "' and Season = '", season, "')")
+		}
 		
 		if (i == 5) {  # IF
 
@@ -44,6 +49,11 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 				away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "')")
 			}
 
+			if (against) {
+				home <- paste0("(select count(FTAG) from ", country, " where HomeTeam = '", team, "' and FTAG >= '", i, "' and Season = '", season, "') + ")
+				away <- paste0("(select count(FTHG) from ", country, " where AwayTeam = '", team, "' and FTHG >= '", i, "' and Season = '", season, "')")
+			}
+
 		}  # END IF
 
 		query <- paste0("select ", home, away, " as SumCount")
@@ -54,6 +64,7 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 	dbDisconnect(conn = ppConn)
 
 	# data$Freq <- c(6, 4, 4, 2, 0, 0)
+	# data$Freq <- round(data$Freq/sum(data$Freq), 5)
 
 	lambda <- (sum(data$Goals*data$Freq))/sum(data$Freq)
 	a <- 0
@@ -71,6 +82,8 @@ Uniform <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 
 	}
 
+	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	test <- chisq.test(x = data$Freq[index], p = data$NewProbs[index], simulate.p.value = TRUE)
 	# comp <- 1 - sum(data$NewProbs[index])
 	# test <- chisq.test(x = c(data$Freq[index], 0), p = c(data$NewProbs[index], comp), simulate.p.value = TRUE)
 

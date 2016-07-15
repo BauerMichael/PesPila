@@ -8,7 +8,7 @@ OptParsNBD <- function(pars, A, B, C, D) {
 	return (E)
 }
 
-NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
+NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16', against = FALSE) {
 	# Get seasons in a given country for a given league.
 	#www
 	#	country: A selected counrty (string).
@@ -28,9 +28,14 @@ NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 		home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "' and Season = '", season, "') + ")
 		away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "' and Season = '", season, "')")
 
-		if (season == "All") {
-			home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "') + ")
-			away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "')")
+		# if (season == "All") {
+		# 	home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG = '", i, "') + ")
+		# 	away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG = '", i, "')")
+		# }
+
+		if (against) {
+			home <- paste0("(select count(FTAG) from ", country, " where HomeTeam = '", team, "' and FTAG = '", i, "' and Season = '", season, "') + ")
+			away <- paste0("(select count(FTHG) from ", country, " where AwayTeam = '", team, "' and FTHG = '", i, "' and Season = '", season, "')")
 		}
 		
 		if (i == 5) {  # IF
@@ -38,9 +43,14 @@ NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 			home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG >= '", i, "' and Season = '", season, "') + ")
 			away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "' and Season = '", season, "')")
 
-			if (season == "All") {
-				home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG >= '", i, "') + ")
-				away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "')")
+			# if (season == "All") {
+			# 	home <- paste0("(select count(FTHG) from ", country, " where HomeTeam = '", team, "' and FTHG >= '", i, "') + ")
+			# 	away <- paste0("(select count(FTAG) from ", country, " where AwayTeam = '", team, "' and FTAG >= '", i, "')")
+			# }
+
+			if (against) {
+				home <- paste0("(select count(FTAG) from ", country, " where HomeTeam = '", team, "' and FTAG >= '", i, "' and Season = '", season, "') + ")
+				away <- paste0("(select count(FTHG) from ", country, " where AwayTeam = '", team, "' and FTHG >= '", i, "' and Season = '", season, "')")
 			}
 
 		}  # END IF
@@ -53,6 +63,7 @@ NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 	dbDisconnect(conn = ppConn)
 
 	# data$Freq <- c(9, 5, 1, 1, 0, 0)
+	# data$Freq <- round(data$Freq/sum(data$Freq), 5)
 
 	pars <- c(k = k, p = p)
 
@@ -74,8 +85,11 @@ NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16') {
 	data$NewProbs <- round(dnbinom(x = data$Goals, mu = k, size = p), 5)
 	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
-	comp <- 1 - sum(data$NewProbs)
-	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)
+	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+
+	# comp <- 1 - sum(data$NewProbs)
+	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)
 
 	# print(test)
 
