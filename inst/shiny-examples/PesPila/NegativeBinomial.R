@@ -4,6 +4,12 @@
 # 	- NBD(country, league)
 
 OptParsNBD <- function(pars, A, B, C, D) {
+	if (pars[1] < 0 || pars[1] > 5) {
+		C <- rep(x = NaN, times = length(C))
+	}
+	if (pars[2] < 0 || pars[2] > 5) {
+		C <- rep(x = NaN, times = length(C))
+	}
 	E <- sum(A*B*(dnbinom(x = C, size = pars[1], mu = pars[2])-D)^2)
 	return (E)
 }
@@ -78,15 +84,22 @@ NBD <- function(country = "Germany", team = "Bayern Munich", season = '15/16', a
 	data$SquareDev <- round((data$Probs - data$RelFreq)^2, 5)
 	data$WeightedSquareDev <- round(data$Freq*data$FreqWeight*data$SquareDev, 5)
 	
-	Opt <- optim(pars, OptPars, A = data$Freq, B = data$FreqWeight, C = data$Goals, D = data$RelFreq)
+	Opt <- optim(pars, OptParsNBD, A = data$Freq, B = data$FreqWeight, C = data$Goals, D = data$RelFreq)
 	k <- Opt$par[1]
 	p <- Opt$par[2]
 
 	data$NewProbs <- round(dnbinom(x = data$Goals, mu = k, size = p), 5)
 	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
-	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
-	test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	# data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	# test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+
+	chi <- sum((data$Freq[index]-data$Predicted[index])^2 / data$Predicted[index])
+	pval <- 1 - pchisq(chi, df = length(index) - 1)
+	test <- list("p.value" = pval)
+
+	# sum <- 1 - sum(data$NewProbs)
+	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, sum), simulate.p.value = TRUE)
 
 	# comp <- 1 - sum(data$NewProbs)
 	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)

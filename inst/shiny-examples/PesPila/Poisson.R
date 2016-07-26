@@ -63,8 +63,10 @@ Poisson <- function(country = "Germany", team = "Bayern Munich", season = '15/16
 	data$NewProbs <- round(dpois(x = data$Goals, lambda = lambda), 5)
 	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
-	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
-	test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	# data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	# data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	sum <- 1 - sum(data$NewProbs)
+	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, sum), simulate.p.value = TRUE)
 
 	# comp <- 1 - sum(data$NewProbs)
 	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)

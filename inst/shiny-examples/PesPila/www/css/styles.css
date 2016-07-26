@@ -17,3 +17,6 @@ label {
 	font-weight: bold;
 	text-align: center;
 }
+/*.dataTables_paginate {
+	display: none;
+}*/

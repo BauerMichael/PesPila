@@ -102,8 +102,10 @@ ZIP <- function(country = "Germany", team = "Bayern Munich", season = '15/16', a
 	data$NewProbs <- round(dzipois(x = data$Goals, lambda = lambda, phi = phi), 5)
 	data$Predicted <- round(data$NewProbs*sum(data$Freq), 5)
 
-	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
-	test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	# data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	# test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	sum <- 1 - sum(data$NewProbs)
+	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, sum), simulate.p.value = TRUE)
 
 	# comp <- 1 - sum(data$NewProbs)
 	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)

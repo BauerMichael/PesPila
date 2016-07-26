@@ -4,6 +4,7 @@ require(hash)
 require(DT)
 require(ggplot2)
 require(RSQLite)
+require(reshape2)
 
 options(scipen=999)
 
@@ -25,7 +26,7 @@ source("ZeroInflatedPoisson.R")
 source("Uniform.R")
 source("Geometric.R")
 source("NegativeBinomial.R")
-source("ZeroInflatedWeibull.R")
+source("WinDrawLost.R")
 
 seasons <- rev(GetSeasons())
 country <- GetCountry()
@@ -43,13 +44,10 @@ sidebar <- dashboardSidebar(
   tags$link(rel = "stylesheet", type = "text/css", href = "/css/styles.css"),
 
   sidebarMenu(
-    menuItem("Statistics", tabName = "statistics", icon = icon("dashboard")),
-    # menuItem("Stats Away Team", tabName = "statsawayteam", icon = icon("dashboard")),
+    menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
     menuItem("Tables", tabName = "results", icon = icon("th")),
     menuItem("Distributions", tabName = "dists", icon = icon("database")),
     menuItem("Forecast", tabName = "forecasts", icon = icon("database"))
-    # menuItem("Widgets", icon = icon("th"), tabName = "widgets",
-    #          badgeLabel = "new", badgeColor = "green")
   ),
 
   selectInput("leagueC",
@@ -83,34 +81,34 @@ body <- dashboardBody(
 
   tabItems(
 
-    tabItem(tabName = "statistics",
+    tabItem(tabName = "overview",
 
       fluidRow(
 
         box(width = 4,
-            title = textOutput("seasonHeaderAllHome"),
+            title = textOutput("allGamesOfHome"),
             background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
-            plotOutput("allSeasonGamesHome", height = 300)
+            plotOutput("allGamesOfHomeStat", height = 300)
 
         ),
 
         box(width = 4,
-            title = textOutput("seasonHeaderHomeHome"),
+            title = textOutput("homeGamesOfHome"),
             background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
-            plotOutput("homeSeasonGamesHome", height = 300)
+            plotOutput("homeGamesOfHomeStat", height = 300)
 
         ),
 
         box(width = 4,
-            title = textOutput("seasonHeaderAwayHome"),
+            title = textOutput("awayGamesOfHome"),
             background = "light-blue",
             solidHeader = TRUE,
             collapsible = TRUE,
-            plotOutput("awaySeasonGamesHome", height = 300)
+            plotOutput("awayGamesOfHomeStat", height = 300)
 
         )
 
@@ -119,95 +117,33 @@ body <- dashboardBody(
       fluidRow(
 
         box(width = 4,
-            title = textOutput("seasonHeaderAllAway"),
+            title = textOutput("allGamesOfAway"),
             background = "navy",
             solidHeader = TRUE,
             collapsible = TRUE,
-            plotOutput("allGamesAway", height = 300)
+            plotOutput("allGamesOfAwayStat", height = 300)
 
         ),
 
         box(width = 4,
-              title = textOutput("seasonHeaderAwayAway"),
+              title = textOutput("homeGamesOfAway"),
               background = "navy",
               solidHeader = TRUE,
               collapsible = TRUE,
-              plotOutput("awayGamesAway", height = 300)
+              plotOutput("homeGamesOfAwayStat", height = 300)
 
         ),
 
         box(width = 4,
-              title = textOutput("seasonHeaderHomeAway"),
+              title = textOutput("awayGamesOfAway"),
               background = "navy",
               solidHeader = TRUE,
               collapsible = TRUE,
-              plotOutput("homeGamesAway", height = 300)
+              plotOutput("awayGamesOfAwayStat", height = 300)
 
         )
 
       )
-
-      # fluidRow(
-
-      #   box(width = 4,
-      #       title = textOutput("overallHeaderAllHome"),
-      #       background = "light-blue",
-      #       solidHeader = TRUE,
-      #       collapsible = TRUE,
-      #       plotOutput("allGamesHome", height = 300)
-
-      #   ),
-
-      #   box(width = 4,
-      #         title = textOutput("overallHeaderHomeHome"),
-      #         background = "light-blue",
-      #         solidHeader = TRUE,
-      #         collapsible = TRUE,
-      #         plotOutput("homeGamesHome", height = 300)
-
-      #   ),
-
-      #   box(width = 4,
-      #         title = textOutput("overallHeaderAwayHome"),
-      #         background = "light-blue",
-      #         solidHeader = TRUE,
-      #         collapsible = TRUE,
-      #         plotOutput("awayGamesHome", height = 300)
-
-      #   )
-
-      # ),
-
-      # fluidRow(
-
-      #   box(width = 4,
-      #       title = textOutput("overallHeaderAllAway"),
-      #       background = "navy",
-      #       solidHeader = TRUE,
-      #       collapsible = TRUE,
-      #       plotOutput("allSeasonGamesAway", height = 300)
-
-      #   ),
-
-      #   box(width = 4,
-      #         title = textOutput("overallHeaderAwayAway"),
-      #         background = "navy",
-      #         solidHeader = TRUE,
-      #         collapsible = TRUE,
-      #         plotOutput("awaySeasonGamesAway", height = 300)
-
-      #   ),
-
-      #   box(width = 4,
-      #         title = textOutput("overallHeaderHomeAway"),
-      #         background = "navy",
-      #         solidHeader = TRUE,
-      #         collapsible = TRUE,
-      #         plotOutput("homeSeasonGamesAway", height = 300)
-
-      #   )
-
-      # )
 
     ),
 
@@ -264,120 +200,35 @@ body <- dashboardBody(
 
       fluidRow(
 
-        column(10, offset = 1,
+        column(12,
 
           tabsetPanel(
 
-            tabPanel("Scored Goals",
+            tabPanel("Goals Scored",
 
-              tabsetPanel(
+              fluidRow(
 
-                tabPanel("Poisson",
+                h1(class = "text-center",
 
-                  h1(class = "text-center",
+                  "Distributions"
 
-                    "Poisson Distribution"
+                ),
 
-                  ),
+                column(9,
 
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvaluePoisson")
-
-                  ),
-
-                  # plotOutput(outputId = "pDistPoisson"),
-                  plotOutput("pDistPoisson", height = 300,
-                    dblclick = "plot1_dblclick",
+                  plotOutput("goalScored", height = 500,
+                    dblclick = "Scored_dblclick",
                     brush = brushOpts(
-                      id = "plot1_brush",
+                      id = "Scored_brush",
                       resetOnNew = TRUE
                     )
-                  ),
-                  DT::dataTableOutput("Poisson")
+                  )
 
                 ),
 
-                tabPanel("Zero-Inflated-Poisson",
+                column(3,
 
-                  h1(class = "text-center",
-
-                    "Zero-Inflated-Poisson Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueZIP")
-
-                  ),
-
-                  # plotOutput(outputId = "pDistZIP"),
-                  plotOutput("pDistZIP", height = 300,
-                    dblclick = "plot1_dblclick",
-                    brush = brushOpts(
-                      id = "plot1_brush",
-                      resetOnNew = TRUE
-                    )
-                  ),
-                  DT::dataTableOutput("ZIP")
-
-                ),
-
-                tabPanel("Uniform",
-
-                  h1(class = "text-center",
-
-                    "Uniform Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueUniform")
-
-                  ),
-
-                  plotOutput(outputId = "pDistUniform"),
-                  DT::dataTableOutput("Uniform")
-
-                ),
-
-                tabPanel("Geometric",
-
-                  h1(class = "text-center",
-
-                    "Geometric Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueGeometric")
-
-                  ),
-
-                  plotOutput(outputId = "pDistGeometric"),
-                  DT::dataTableOutput("Geometric")
-
-                ),
-
-                tabPanel("Negative Binomial",
-
-                  h1(class = "text-center",
-
-                    "Negative Binomial Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueNegBinom")
-
-                  ),
-
-                  plotOutput(outputId = "pDistNegBinom"),
-                  DT::dataTableOutput("NegBinom")
+                  DT::dataTableOutput("gScored")
 
                 )
 
@@ -385,108 +236,168 @@ body <- dashboardBody(
 
             ),
 
-            tabPanel("Goals against",
+            tabPanel("Goals Conceded",
 
-              tabsetPanel(
+              fluidRow(
 
-                tabPanel("Poisson",
+                h1(class = "text-center",
 
-                  h1(class = "text-center",
-
-                    "Poisson Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvaluePoissonA")
-
-                  ),
-
-                  plotOutput(outputId = "pDistPoissonA"),
-                  DT::dataTableOutput("PoissonA")
+                  "Distributions"
 
                 ),
 
-                tabPanel("Zero-Inflated-Poisson",
+                column(9,
 
-                  h1(class = "text-center",
-
-                    "Zero-Inflated-Poisson Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueZIPA")
-
-                  ),
-
-                  plotOutput(outputId = "pDistZIPA"),
-                  DT::dataTableOutput("ZIPA")
+                  plotOutput("goalConceded", height = 500,
+                    dblclick = "Coneded_dblclick",
+                    brush = brushOpts(
+                      id = "Coneded_brush",
+                      resetOnNew = TRUE
+                    )
+                  )
 
                 ),
 
-                tabPanel("Uniform",
+                column(3,
 
-                  h1(class = "text-center",
-
-                    "Uniform Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueUniformA")
-
-                  ),
-
-                  plotOutput(outputId = "pDistUniformA"),
-                  DT::dataTableOutput("UniformA")
-
-                ),
-
-                tabPanel("Geometric",
-
-                  h1(class = "text-center",
-
-                    "Geometric Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueGeometricA")
-
-                  ),
-
-                  plotOutput(outputId = "pDistGeometricA"),
-                  DT::dataTableOutput("GeometricA")
-
-                ),
-
-                tabPanel("Negative Binomial",
-
-                  h1(class = "text-center",
-
-                    "Negative Binomial Distribution"
-
-                  ),
-
-                  h3(class = "text-center",
-
-                    textOutput(outputId = "pvalueNegBinomA")
-
-                  ),
-
-                  plotOutput(outputId = "pDistNegBinomA"),
-                  DT::dataTableOutput("NegBinomA")
+                  DT::dataTableOutput("gConceded")
 
                 )
 
               )
 
+              # tabsetPanel(
+
+              #   tabPanel("Poisson",
+
+              #     h1(class = "text-center",
+
+              #       "Poisson Distribution"
+
+              #     ),
+
+              #     h3(class = "text-center",
+
+              #       textOutput(outputId = "pvaluePoissonA")
+
+              #     ),
+
+              #     plotOutput(outputId = "pDistPoissonA"),
+              #     DT::dataTableOutput("PoissonA")
+
+              #   ),
+
+              #   tabPanel("Zero-Inflated-Poisson",
+
+              #     h1(class = "text-center",
+
+              #       "Zero-Inflated-Poisson Distribution"
+
+              #     ),
+
+              #     h3(class = "text-center",
+
+              #       textOutput(outputId = "pvalueZIPA")
+
+              #     ),
+
+              #     plotOutput(outputId = "pDistZIPA"),
+              #     DT::dataTableOutput("ZIPA")
+
+              #   ),
+
+              #   tabPanel("Uniform",
+
+              #     h1(class = "text-center",
+
+              #       "Uniform Distribution"
+
+              #     ),
+
+              #     h3(class = "text-center",
+
+              #       textOutput(outputId = "pvalueUniformA")
+
+              #     ),
+
+              #     plotOutput(outputId = "pDistUniformA"),
+              #     DT::dataTableOutput("UniformA")
+
+              #   ),
+
+              #   tabPanel("Geometric",
+
+              #     h1(class = "text-center",
+
+              #       "Geometric Distribution"
+
+              #     ),
+
+              #     h3(class = "text-center",
+
+              #       textOutput(outputId = "pvalueGeometricA")
+
+              #     ),
+
+              #     plotOutput(outputId = "pDistGeometricA"),
+              #     DT::dataTableOutput("GeometricA")
+
+              #   ),
+
+              #   tabPanel("Negative Binomial",
+
+              #     h1(class = "text-center",
+
+              #       "Negative Binomial Distribution"
+
+              #     ),
+
+              #     h3(class = "text-center",
+
+              #       textOutput(outputId = "pvalueNegBinomA")
+
+              #     ),
+
+              #     plotOutput(outputId = "pDistNegBinomA"),
+              #     DT::dataTableOutput("NegBinomA")
+
+              #   )
+
+              # )
+
             )
+
+            # tabPanel("P-Value Prediction",
+
+            #   fluidRow(
+
+            #     h1(class = "text-center",
+
+            #       "Poisson P-Value"
+
+            #     ),
+
+            #     column(9,
+
+            #       plotOutput("poissonPval", height = 500,
+            #         dblclick = "plot_dblclick",
+            #         brush = brushOpts(
+            #           id = "plot_brush",
+            #           resetOnNew = TRUE
+            #         )
+            #       )
+
+            #     ),
+
+            #     column(3,
+
+            #       DT::dataTableOutput("pPval")
+
+            #     )
+
+            #   )
+
+            # )
 
           )
 
@@ -498,33 +409,12 @@ body <- dashboardBody(
 
     tabItem(tabName = "forecasts",
 
-      # fluidRow(
-
-      #   column(6, class = "text-center",
-
-      #     h1(textOutput("homeHeader")),
-      #     dataTableOutput("homeHTML")
-
-      #   ),
-
-      #   column(6, class = "text-center",
-
-      #     h1(textOutput("awayHeader")),
-      #     dataTableOutput("awayHTML")
-
-      #   )
-
-      # ),
-
       fluidRow(
 
         column(8, offset = 2, class = "text-center",
 
           h1("Forecast"),
-          dataTableOutput("matchingTable"),
-          dataTableOutput("matchingTableA")
-          # dataTableOutput("test"),
-          # actionButton(inputId = "run", label = "Test run")
+          dataTableOutput("predictScored")
 
         )
 

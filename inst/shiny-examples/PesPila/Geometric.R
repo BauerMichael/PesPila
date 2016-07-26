@@ -70,8 +70,10 @@ Geometric <- function(country = "Germany", team = "Bayern Munich", season = '15/
 	# print(data$NewProbs)
 	# print(data$Predicted)
 
-	data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
-	test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	# data$NewProbs[6] <- data$NewProbs[6] + (1 - sum(data$NewProbs))
+	# test <- chisq.test(x = data$Freq, p = data$NewProbs, simulate.p.value = TRUE)
+	sum <- 1 - sum(data$NewProbs)
+	test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, sum), simulate.p.value = TRUE)
 
 	# comp <- 1 - sum(data$NewProbs)
 	# test <- chisq.test(x = c(data$Freq, 0), p = c(data$NewProbs, comp), simulate.p.value = TRUE)
