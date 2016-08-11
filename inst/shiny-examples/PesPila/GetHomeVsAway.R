@@ -3,7 +3,7 @@
 # Functions available:
 # 	- GetHomeVsAway(input, country, home, away)
 
-GetHomeVsAway <- function(input, country = "Germany", home = "Bayern Munich", away = "Dortmund") {
+GetHomeVsAway <- function(country = "Germany", home = "Bayern Munich", away = "Dortmund") {
 	# Get the conditioned data from the database.
 	#
 	#	input: Input fields of the UI.
@@ -15,12 +15,13 @@ GetHomeVsAway <- function(input, country = "Germany", home = "Bayern Munich", aw
   
 	InitDB()
 	
-	query <- paste0("select * from ", country, " where HomeTeam = '", input$leagueTH, "' and AwayTeam = '", input$leagueTA, "'")
+	query <- paste0("select * from ", country, " where HomeTeam = '", home, "' and AwayTeam = '", away, "'")
 	
 	data <- dbGetQuery(conn = ppConn, statement = query)
 
 	dbDisconnect(conn = ppConn)
 	
+	print(query)
 	data[data == "NA"] <- NA
 	data <- data[nrow(data):1, 3:ncol(data)]
 

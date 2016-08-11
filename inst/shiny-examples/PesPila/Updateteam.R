@@ -3,7 +3,7 @@
 # Functions available:
 # 	- UpdateLeagueT(session, country)
 
-UpdateLeagueT <- function(session, country = "Germany", league = "1. Bundesliga", season = "15/16") {
+Updateteam <- function(session, country = "Germany", league = "1. Bundesliga", season = "15/16") {
 	# Get seasons in a given country for a given league.
 	#
 	#	session: The shiny sesssion variable.
@@ -12,10 +12,13 @@ UpdateLeagueT <- function(session, country = "Germany", league = "1. Bundesliga"
 	#	Return: No return value.
 
   teams <- GetTeams(country = country, league = league, season = season)
-  updateSelectInput(session = session, inputId = "leagueTH",
+  updateSelectInput(session = session, inputId = "home",
                     choices = teams,
                     selected = teams[1])
-  updateSelectInput(session = session, inputId = "leagueTA",
+  updateSelectInput(session = session, inputId = "team",
+                    choices = teams,
+                    selected = teams[1])
+  updateSelectInput(session = session, inputId = "away",
                     choices = teams,
                     selected = teams[2])
 

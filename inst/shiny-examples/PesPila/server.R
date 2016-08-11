@@ -1,194 +1,230 @@
 shinyServer(function(input, output, session) {
 
-  ranges <- reactiveValues(x = NULL, y = NULL)
-  rangesP <- reactiveValues(x = NULL, y = NULL)
-  rangesZ <- reactiveValues(x = NULL, y = NULL)
-  rangesU <- reactiveValues(x = NULL, y = NULL)
-  rangesG <- reactiveValues(x = NULL, y = NULL)
-  rangesN <- reactiveValues(x = NULL, y = NULL)
+  # ranges <- reactiveValues(x = NULL, y = NULL)
+  # ranges <- reactiveValues(x = NULL, y = NULL)
+  # rangesP <- reactiveValues(x = NULL, y = NULL)
+  # rangesZ <- reactiveValues(x = NULL, y = NULL)
+  # rangesU <- reactiveValues(x = NULL, y = NULL)
+  # rangesG <- reactiveValues(x = NULL, y = NULL)
+  # rangesN <- reactiveValues(x = NULL, y = NULL)
 
-  observeEvent(input$plot_dblclick, {
-    brush <- input$plot_brush
-    if (!is.null(brush)) {
-      ranges$x <- c(brush$xmin, brush$xmax)
-      ranges$y <- c(brush$ymin, brush$ymax)
-    } else {
-      ranges$x <- NULL
-      ranges$y <- NULL
-    }
-  })
-  observeEvent(input$plot_dblclickP, {
-    brush <- input$plot_brushP
-    if (!is.null(brush)) {
-      rangesP$x <- c(brush$xmin, brush$xmax)
-      rangesP$y <- c(brush$ymin, brush$ymax)
-    } else {
-      rangesP$x <- NULL
-      rangesP$y <- NULL
-    }
-  })
-  observeEvent(input$plot_dblclickZ, {
-    brush <- input$plot_brushZ
-    if (!is.null(brush)) {
-      rangesZ$x <- c(brush$xmin, brush$xmax)
-      rangesZ$y <- c(brush$ymin, brush$ymax)
-    } else {
-      rangesZ$x <- NULL
-      rangesZ$y <- NULL
-    }
-  })
-  observeEvent(input$plot_dblclickU, {
-    brush <- input$plot_brushU
-    if (!is.null(brush)) {
-      rangesU$x <- c(brush$xmin, brush$xmax)
-      rangesU$y <- c(brush$ymin, brush$ymax)
-    } else {
-      rangesU$x <- NULL
-      rangesU$y <- NULL
-    }
-  })
-  observeEvent(input$plot_dblclickG, {
-    brush <- input$plot_brushG
-    if (!is.null(brush)) {
-      rangesG$x <- c(brush$xmin, brush$xmax)
-      rangesG$y <- c(brush$ymin, brush$ymax)
-    } else {
-      rangesG$x <- NULL
-      rangesG$y <- NULL
-    }
-  })
-  observeEvent(input$plot_dblclickN, {
-    brush <- input$plot_brushN
-    if (!is.null(brush)) {
-      rangesN$x <- c(brush$xmin, brush$xmax)
-      rangesN$y <- c(brush$ymin, brush$ymax)
-    } else {
-      rangesN$x <- NULL
-      rangesN$y <- NULL
-    }
-  })
+  # observeEvent(input$plot_dblclick, {
+  #   brush <- input$plot_brush
+  #   if (!is.null(brush)) {
+  #     ranges$x <- c(brush$xmin, brush$xmax)
+  #     ranges$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     ranges$x <- NULL
+  #     ranges$y <- NULL
+  #   }
+  # })
+  # observeEvent(input$plot_dblclickP, {
+  #   brush <- input$plot_brushP
+  #   if (!is.null(brush)) {
+  #     rangesP$x <- c(brush$xmin, brush$xmax)
+  #     rangesP$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     rangesP$x <- NULL
+  #     rangesP$y <- NULL
+  #   }
+  # })
+  # observeEvent(input$plot_dblclickZ, {
+  #   brush <- input$plot_brushZ
+  #   if (!is.null(brush)) {
+  #     rangesZ$x <- c(brush$xmin, brush$xmax)
+  #     rangesZ$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     rangesZ$x <- NULL
+  #     rangesZ$y <- NULL
+  #   }
+  # })
+  # observeEvent(input$plot_dblclickU, {
+  #   brush <- input$plot_brushU
+  #   if (!is.null(brush)) {
+  #     rangesU$x <- c(brush$xmin, brush$xmax)
+  #     rangesU$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     rangesU$x <- NULL
+  #     rangesU$y <- NULL
+  #   }
+  # })
+  # observeEvent(input$plot_dblclickG, {
+  #   brush <- input$plot_brushG
+  #   if (!is.null(brush)) {
+  #     rangesG$x <- c(brush$xmin, brush$xmax)
+  #     rangesG$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     rangesG$x <- NULL
+  #     rangesG$y <- NULL
+  #   }
+  # })
+  # observeEvent(input$plot_dblclickN, {
+  #   brush <- input$plot_brushN
+  #   if (!is.null(brush)) {
+  #     rangesN$x <- c(brush$xmin, brush$xmax)
+  #     rangesN$y <- c(brush$ymin, brush$ymax)
+  #   } else {
+  #     rangesN$x <- NULL
+  #     rangesN$y <- NULL
+  #   }
+  # })
 
-  observe({input$leagueC
+  observeEvent(eventExpr = input$getSetting, {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      UpdateLeagueL(session = session, country = input$leagueC, league = input$leagueL)
+      Updateteam(session = session, country = input$country, league = input$league, season = input$season)
     })
   })
 
-  observe({input$leagueL
+  observeEvent(eventExpr = input$getLeagues, {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      UpdateLeagueS(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      Updateleague(session = session, country = input$country, league = input$league)
     })
   })
 
-  observe({input$leagueS
+  observeEvent(eventExpr = input$getSeasons, {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      UpdateLeagueT(session = session, country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      Updateseason(session = session, country = input$country, league = input$league, season = input$season)
     })
   })
 
-  output$gScored <- DT::renderDataTable({
-
+  observeEvent(eventExpr = input$getForecasts, {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+      output$gScored <- DT::renderDataTable({
 
-      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-        InitDB()
-        query <- paste0("select A.* from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$leagueS, "' and A.Season_ID = B.Season_ID and C.Team = '", input$leagueTH, "' and A.Team_ID = C.Team_ID and D.Country = '", input$leagueC, "' and A.Country_ID = D.Country_ID")
-        data <- dbGetQuery(conn = ppConn, statement = query)
-        dbDisconnect(conn = ppConn)
+          if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-        goals <- 0:5
-        a <- data[1, "Uniform_A"]
-        b <- data[1, "Uniform_B"]
-        unif <- rep(x = 0, times = length(goals))
-        unif[which(goals <= b)] <- 1/(b-a+1)
+            InitDB()
+            query <- paste0("select A.* from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$team, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+            data <- dbGetQuery(conn = ppConn, statement = query)
+            dbDisconnect(conn = ppConn)
 
-        df <- data.frame("Goals" = goals,
-                         "Frequencies" = round(as.numeric(data[1, c("Zero", "One", "Two", "Three", "Four", "Five")]), 5),
-                         "Poisson" = round(dpois(x = goals, lambda = data[1, "Poisson_Lambda"]), 5),
-                         "Zero.Inflated.Poisson" = round(dzipois(x = goals, lambda = data[1, "ZIP_Lambda"], phi = data[1, "ZIP_Phi"]), 5),
-                         "Uniform" = round(unif, 5),
-                         "Geometric" = round(dgeom(x = goals, prob = data[1, "Geometric_P"]), 5),
-                         "Negative.Binomial" = round(dnbinom(x = goals, mu = data[1, "NBD_K"], size = data[1, "NBD_P"]), 5),
-                         "Model" = c("Poisson", "Zero-Inflated-Poisson", "Uniform", "Geometric", "Negative-Binomial", NA),
-                         "Pval" = c(100*round(data[1, "Poisson_Pval"], 4), 100*round(data[1, "ZIP_Pval"], 4), 100*round(data[1, "Uniform_Pval"], 4), 100*round(data[1, "Geometric_Pval"], 4), 100*round(data[1, "NBD_Pval"], 4), NA)
-        )
+            goals <- 0:5
+            a <- data[1, "Uniform_A"]
+            b <- data[1, "Uniform_B"]
+            unif <- rep(x = 0, times = length(goals))
+            unif[which(goals <= b)] <- 1/(b-a+1)
 
-        output$goalScored <- renderPlot({
+            df <- data.frame("Goals" = goals,
+                             "Frequencies" = round(as.numeric(data[1, c("Zero", "One", "Two", "Three", "Four", "Five")]), 5),
+                             "Poisson" = round(dpois(x = goals, lambda = data[1, "Poisson_Lambda"]), 5),
+                             "Zero.Inflated.Poisson" = round(dzipois(x = goals, lambda = data[1, "ZIP_Lambda"], phi = data[1, "ZIP_Phi"]), 5),
+                             "Uniform" = round(unif, 5),
+                             "Geometric" = round(dgeom(x = goals, prob = data[1, "Geometric_P"]), 5),
+                             "Negative.Binomial" = round(dnbinom(x = goals, mu = data[1, "NBD_K"], size = data[1, "NBD_P"]), 5),
+                             "Model" = c("Poisson", "Zero-Inflated-Poisson", "Uniform", "Geometric", "Negative-Binomial", NA),
+                             "Pval" = c(100*round(data[1, "Poisson_Pval"], 4), 100*round(data[1, "ZIP_Pval"], 4), 100*round(data[1, "Uniform_Pval"], 4), 100*round(data[1, "Geometric_Pval"], 4), 100*round(data[1, "NBD_Pval"], 4), NA)
+            )
 
-          ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y)
-          # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + scale_colour_manual(values = c("red", "blue", "green", "black", "orange", "purple"))
-          # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + theme(legend.position = c(0, 0), legend.justification = c(0, 0))
-          # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + guides(fill = guide_legend(title = "Distributions"))
-          # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + scale_fill_discrete(name = "TEST")
-          # ggplot(data$Table, aes(Goals, Freq/sum(Freq))) + geom_line(colour = "blue") + geom_point() + geom_line(aes(Goals, NewProbs), colour = "red") + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y)
+            output$goalScored <- renderPlot({
+
+              ggplot(df, aes(x = Goals)) + 
+                    geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + 
+                    geom_line(aes(y = Poisson), colour = "blue") + 
+                    geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + 
+                    geom_line(aes(y = Uniform), colour = "black") + 
+                    geom_line(aes(y = Geometric), colour = "purple") + 
+                    geom_line(aes(y = Negative.Binomial), colour = "orange") + 
+                    geom_point(aes(y = Frequencies)) + 
+                    geom_point(aes(y = Poisson)) + 
+                    geom_point(aes(y = Zero.Inflated.Poisson)) + 
+                    geom_point(aes(y = Uniform)) + 
+                    geom_point(aes(y = Geometric)) + 
+                    geom_point(aes(y = Negative.Binomial)) +
+                    # coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + 
+                    theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + 
+                    ylab("Frequencies")# + 
+                    # coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+              # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + scale_colour_manual(values = c("red", "blue", "green", "black", "orange", "purple"))
+              # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + theme(legend.position = c(0, 0), legend.justification = c(0, 0))
+              # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + guides(fill = guide_legend(title = "Distributions"))
+              # ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y) + scale_fill_discrete(name = "TEST")
+              # ggplot(data$Table, aes(Goals, Freq/sum(Freq))) + geom_line(colour = "blue") + geom_point() + geom_line(aes(Goals, NewProbs), colour = "red") + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y)
+
+            })
+
+            datatable(df[1:5, c("Model", "Pval")],
+                rownames = FALSE,
+                escape = FALSE
+            )
+
+          }
 
         })
+      
+      })
 
-        datatable(df[1:5, c("Model", "Pval")],
-            rownames = FALSE,
-            escape = FALSE
-        )
+      output$gConceded <- DT::renderDataTable({
 
-      }
+        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-    })
-  
-  })
+          if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  output$gConceded <- DT::renderDataTable({
+            InitDB()
+            query <- paste0("select A.* from Conceded A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$team, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+            data <- dbGetQuery(conn = ppConn, statement = query)
+            dbDisconnect(conn = ppConn)
 
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+            goals <- 0:5
+            a <- data[1, "Uniform_A"]
+            b <- data[1, "Uniform_B"]
+            unif <- rep(x = 0, times = length(goals))
+            unif[which(goals <= b)] <- 1/(b-a+1)
 
-      if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+            df <- data.frame("Goals" = goals,
+                             "Frequencies" = round(as.numeric(data[1, c("Zero", "One", "Two", "Three", "Four", "Five")]), 5),
+                             "Poisson" = round(dpois(x = goals, lambda = data[1, "Poisson_Lambda"]), 5),
+                             "Zero.Inflated.Poisson" = round(dzipois(x = goals, lambda = data[1, "ZIP_Lambda"], phi = data[1, "ZIP_Phi"]), 5),
+                             "Uniform" = round(unif, 5),
+                             "Geometric" = round(dgeom(x = goals, prob = data[1, "Geometric_P"]), 5),
+                             "Negative.Binomial" = round(dnbinom(x = goals, mu = data[1, "NBD_K"], size = data[1, "NBD_P"]), 5),
+                             "Model" = c("Poisson", "Zero-Inflated-Poisson", "Uniform", "Geometric", "Negative-Binomial", NA),
+                             "Pval" = c(100*round(data[1, "Poisson_Pval"], 4), 100*round(data[1, "ZIP_Pval"], 4), 100*round(data[1, "Uniform_Pval"], 4), 100*round(data[1, "Geometric_Pval"], 4), 100*round(data[1, "NBD_Pval"], 4), NA)
+            )
 
-        InitDB()
-        query <- paste0("select A.* from Conceded A, Seasons B, Teams C, Countries D where B.Season = '", input$leagueS, "' and A.Season_ID = B.Season_ID and C.Team = '", input$leagueTH, "' and A.Team_ID = C.Team_ID and D.Country = '", input$leagueC, "' and A.Country_ID = D.Country_ID")
-        data <- dbGetQuery(conn = ppConn, statement = query)
-        dbDisconnect(conn = ppConn)
+            output$goalConceded <- renderPlot({
 
-        goals <- 0:5
-        a <- data[1, "Uniform_A"]
-        b <- data[1, "Uniform_B"]
-        unif <- rep(x = 0, times = length(goals))
-        unif[which(goals <= b)] <- 1/(b-a+1)
+              ggplot(df, aes(x = Goals)) + 
+                    geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + 
+                    geom_line(aes(y = Poisson), colour = "blue") + 
+                    geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + 
+                    geom_line(aes(y = Uniform), colour = "black") + 
+                    geom_line(aes(y = Geometric), colour = "purple") + 
+                    geom_line(aes(y = Negative.Binomial), colour = "orange") + 
+                    geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + 
+                    geom_point(aes(y = Zero.Inflated.Poisson)) + 
+                    geom_point(aes(y = Uniform)) + 
+                    geom_point(aes(y = Geometric)) + 
+                    geom_point(aes(y = Negative.Binomial)) + 
+                    # coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + 
+                    theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + 
+                    ylab("Frequencies")# + 
+                    # coord_cartesian(xlim = ranges$x, ylim = ranges$y)
 
-        df <- data.frame("Goals" = goals,
-                         "Frequencies" = round(as.numeric(data[1, c("Zero", "One", "Two", "Three", "Four", "Five")]), 5),
-                         "Poisson" = round(dpois(x = goals, lambda = data[1, "Poisson_Lambda"]), 5),
-                         "Zero.Inflated.Poisson" = round(dzipois(x = goals, lambda = data[1, "ZIP_Lambda"], phi = data[1, "ZIP_Phi"]), 5),
-                         "Uniform" = round(unif, 5),
-                         "Geometric" = round(dgeom(x = goals, prob = data[1, "Geometric_P"]), 5),
-                         "Negative.Binomial" = round(dnbinom(x = goals, mu = data[1, "NBD_K"], size = data[1, "NBD_P"]), 5),
-                         "Model" = c("Poisson", "Zero-Inflated-Poisson", "Uniform", "Geometric", "Negative-Binomial", NA),
-                         "Pval" = c(100*round(data[1, "Poisson_Pval"], 4), 100*round(data[1, "ZIP_Pval"], 4), 100*round(data[1, "Uniform_Pval"], 4), 100*round(data[1, "Geometric_Pval"], 4), 100*round(data[1, "NBD_Pval"], 4), NA)
-        )
+            })
 
-        output$goalConceded <- renderPlot({
+            datatable(df[1:5, c("Model", "Pval")],
+                rownames = FALSE,
+                escape = FALSE
+            )
 
-          ggplot(df, aes(x = Goals)) + geom_line(aes(y = Frequencies), colour = "red", size = 1.2) + geom_line(aes(y = Poisson), colour = "blue") + geom_line(aes(y = Zero.Inflated.Poisson), colour = "green") + geom_line(aes(y = Uniform), colour = "black") + geom_line(aes(y = Geometric), colour = "purple") + geom_line(aes(y = Negative.Binomial), colour = "orange") + geom_point(aes(y = Frequencies)) + geom_point(aes(y = Poisson)) + geom_point(aes(y = Zero.Inflated.Poisson)) + geom_point(aes(y = Uniform)) + geom_point(aes(y = Geometric)) + geom_point(aes(y = Negative.Binomial)) + coord_cartesian(xlim = rangesP$x, ylim = rangesP$y) + theme(axis.title.x = element_text(face="bold", colour="black", size=15), axis.title.y = element_text(face="bold", colour="black", size=15)) + ylab("Frequencies") + coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+          }
 
         })
-
-        datatable(df[1:5, c("Model", "Pval")],
-            rownames = FALSE,
-            escape = FALSE
-        )
-
-      }
-
+      
+      })
     })
-  
   })
 
   # output$pPval <- DT::renderDataTable({
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
   #       InitDB()
-  #       query <- paste0("select A.Dist, round(A.Zero, 2), round(A.One, 2), round(A.Two, 2), round(A.Three, 2), round(A.Four, 2), round(A.Five, 2) from Scored A, Teams C, Countries D where C.Team = '", input$leagueTH, "' and A.Team_ID = C.Team_ID and D.Country = '", input$leagueC, "' and A.Country_ID = D.Country_ID")
+  #       query <- paste0("select A.Dist, round(A.Zero, 2), round(A.One, 2), round(A.Two, 2), round(A.Three, 2), round(A.Four, 2), round(A.Five, 2) from Scored A, Teams C, Countries D where C.Team = '", input$home, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
   #       data <- dbGetQuery(conn = ppConn, statement = query)
   #       dbDisconnect(conn = ppConn)
   #       data <- melt(data, id.vars = "Dist")
@@ -214,13 +250,13 @@ shinyServer(function(input, output, session) {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
       InitDB()
-      home <- paste0("select A.Dist from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$leagueS, "' and A.Season_ID = B.Season_ID and C.Team = '", input$leagueTH, "' and A.Team_ID = C.Team_ID and D.Country = '", input$leagueC, "' and A.Country_ID = D.Country_ID")
+      home <- paste0("select A.Dist from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$home, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
       home <- as.character(dbGetQuery(conn = ppConn, statement = home)[1, "Dist"])
       hStr <- strsplit(home, split = "_")[[1]]
       hProb <- paste0(hStr, "_Pval")
       home <- paste0("select ", home, ", ", hProb, " from Scored")
       home <- as.character(dbGetQuery(conn = ppConn, statement = home)[1, home])
-      away <- paste0("select A.Dist from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$leagueS, "' and A.Season_ID = B.Season_ID and C.Team = '", input$leagueTA, "' and A.Team_ID = C.Team_ID and D.Country = '", input$leagueC, "' and A.Country_ID = D.Country_ID")
+      away <- paste0("select A.Dist from Scored A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$away, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
       away <- as.character(dbGetQuery(conn = ppConn, statement = away)[1, "Dist"])
       aStr <- strsplit(away, split = "_")[[1]]
       aProb <- paste0(aStr, "_Pval")
@@ -309,9 +345,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       data <- Poisson(country = input$country, team = input$home, season = input$season)
 
   #       output$pDistPoisson <- renderPlot({
 
@@ -332,7 +368,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2))
 
   #       })
 
@@ -358,9 +394,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       data <- ZIP(country = input$country, team = input$home, season = input$season)
 
   #       output$pDistZIP <- renderPlot({
 
@@ -381,7 +417,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
 
   #       })
 
@@ -407,9 +443,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       data <- Uniform(country = input$country, team = input$home, season = input$season)
 
   #       output$pDistUniform <- renderPlot({
 
@@ -430,7 +466,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " and a = ", data$a, ", b = ", data$b)
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " and a = ", data$a, ", b = ", data$b)
 
   #       })
 
@@ -456,9 +492,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       data <- Geometric(country = input$country, team = input$home, season = input$season)
 
   #       output$pDistGeometric <- renderPlot({
 
@@ -479,7 +515,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2))
 
   #       })
 
@@ -505,9 +541,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       data <- NBD(country = input$country, team = input$home, season = input$season)
 
   #       output$pDistNegBinom <- renderPlot({
 
@@ -528,7 +564,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
 
   #       })
 
@@ -554,9 +590,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       data <- Poisson(country = input$country, team = input$home, season = input$season, against = TRUE)
 
   #       output$pDistPoissonA <- renderPlot({
 
@@ -579,7 +615,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2))
 
   #       })
 
@@ -605,9 +641,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       data <- ZIP(country = input$country, team = input$home, season = input$season, against = TRUE)
 
   #       output$pDistZIPA <- renderPlot({
 
@@ -630,7 +666,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " with lambda = ", round(data$lambda, 2), " and phi = ", round(data$phi, 2), ".")
 
   #       })
 
@@ -656,9 +692,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       data <- Uniform(country = input$country, team = input$home, season = input$season, against = TRUE)
 
   #       output$pDistUniformA <- renderPlot({
 
@@ -681,7 +717,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " and a = ", data$a, ", b = ", data$b)
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " and a = ", data$a, ", b = ", data$b)
 
   #       })
 
@@ -707,9 +743,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       data <- Geometric(country = input$country, team = input$home, season = input$season, against = TRUE)
 
   #       output$pDistGeometricA <- renderPlot({
 
@@ -732,7 +768,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2))
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2))
 
   #       })
 
@@ -758,9 +794,9 @@ shinyServer(function(input, output, session) {
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-  #     if (input$leagueC != "" && input$leagueS != "" && input$leagueTH != "" && input$leagueL != "") {
+  #     if (input$country != "" && input$season != "" && input$home != "" && input$league != "") {
 
-  #       data <- NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       data <- NBD(country = input$country, team = input$home, season = input$season, against = TRUE)
 
   #       output$pDistNegBinomA <- renderPlot({
 
@@ -783,7 +819,7 @@ shinyServer(function(input, output, session) {
 
   #         }
 
-  #         paste0(h0, " ", input$leagueTH, " with p-value = ", round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
+  #         paste0(h0, " ", input$home, " with p-value = ", round(data$ChiSquare$p.value, 2), " with k = ", round(data$k, 2), " and p = ", round(data$p, 2), ".")
 
   #       })
 
@@ -805,131 +841,150 @@ shinyServer(function(input, output, session) {
   
   # })
 
-  output$Games <- DT::renderDataTable({
-
+  observeEvent(eventExpr = input$getVS, {
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-      data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
+      output$gamesHeader <- renderText({paste0("Games of ", input$league, " - Season ", input$season)})
+      output$seasonHeader <- renderText({paste0("Table of ", input$league, " - Season ", input$season)})
+      output$vsHeader <- renderText({paste0(input$home, " vs. ", input$away)})
 
-      datatable(data[, 4:ncol(data)],
-          rownames = FALSE, escape = FALSE,
-          extensions = c('ColReorder', 'ColVis', 'Responsive'),
-          options = list(pageLength = -1,
-              lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-              deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-              searchHighlight = TRUE,
-              dom = 'TRCSlfrtip<"clear">',
-              colReorder = list(realtime = TRUE)
+      output$Games <- DT::renderDataTable({
+
+        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+
+          data <- GetLeagueTable(country = input$country, league = input$league, season = input$season)
+
+          datatable(data[, 4:ncol(data)],
+              rownames = FALSE, escape = FALSE,
+              extensions = c('ColReorder', 'ColVis', 'Responsive'),
+              options = list(pageLength = -1,
+                  lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                  deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                  searchHighlight = TRUE,
+                  dom = 'TRCSlfrtip<"clear">',
+                  colReorder = list(realtime = TRUE)
+              )
           )
-      )
 
-    })
+        })
 
-  })
+      })
 
 
-  output$Tables <- DT::renderDataTable({
+      output$Tables <- DT::renderDataTable({
 
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-      data <- GetLeagueTable(country = input$leagueC, league = input$leagueL, season = input$leagueS)
-      table <- GetTableOfSeason(data = data)
-      table <- cbind("Place" = 1:nrow(table), table)
+          data <- GetLeagueTable(country = input$country, league = input$league, season = input$season)
+          table <- GetTableOfSeason(data = data)
+          table <- cbind("Place" = 1:nrow(table), table)
 
-      datatable(table,
-          rownames = FALSE, escape = FALSE,
-          extensions = c('ColReorder', 'ColVis', 'Responsive'),
-          options = list(pageLength = -1,
-              lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-              deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-              searchHighlight = TRUE,
-              dom = 'TRCSlfrtip<"clear">',
-              colReorder = list(realtime = TRUE)
+          datatable(table,
+              rownames = FALSE, escape = FALSE,
+              extensions = c('ColReorder', 'ColVis', 'Responsive'),
+              options = list(pageLength = -1,
+                  lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                  deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                  searchHighlight = TRUE,
+                  dom = 'TRCSlfrtip<"clear">',
+                  colReorder = list(realtime = TRUE)
+              )
           )
-      )
 
-    })
+        })
 
-  })
+      })
 
-  output$vs <- DT::renderDataTable({
+      output$vs <- DT::renderDataTable({
 
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-      data <- GetHomeVsAway(input = input, country = input$leagueC, home = input$leagueTH, away = input$leagueTA)
+          data <- GetHomeVsAway(country = input$country, home = input$home, away = input$away)
 
-      datatable(data,
-          rownames = FALSE, escape = FALSE,
-          extensions = c('ColReorder', 'ColVis', 'Responsive'),
-          options = list(pageLength = -1,
-              lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-              deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-              searchHighlight = TRUE,
-              dom = 'TRCSlfrtip<"clear">',
-              colReorder = list(realtime = TRUE)
+          datatable(data,
+              rownames = FALSE, escape = FALSE,
+              extensions = c('ColReorder', 'ColVis', 'Responsive'),
+              options = list(pageLength = -1,
+                  lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+                  deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+                  searchHighlight = TRUE,
+                  dom = 'TRCSlfrtip<"clear">',
+                  colReorder = list(realtime = TRUE)
+              )
           )
-      )
 
-    })
+        })
 
-  })
+      })
 
-  output$gamesHeader <- renderText({paste0("Games of ", input$leagueL, " - Season ", input$leagueS)})
-  output$seasonHeader <- renderText({paste0("Table of ", input$leagueL, " - Season ", input$leagueS)})
-  output$vsHeader <- renderText({paste0(input$leagueTH, " vs. ", input$leagueTA)})
-
-  observeEvent(eventExpr = input$leagueTH, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTH, season = input$leagueS, country = input$leagueC,
+      WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
                   stat = "All", plot = "allGamesOfHomeStat", head = "allGamesOfHome")
+      WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
+                        stat = "Home", plot = "homeGamesOfHomeStat", head = "homeGamesOfHome")
+      WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
+                        stat = "Away", plot = "awayGamesOfHomeStat", head = "awayGamesOfHome")
+      WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+                        stat = "All", plot = "allGamesOfAwayStat", head = "allGamesOfAway")
+      WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+                        stat = "Home", plot = "homeGamesOfAwayStat", head = "homeGamesOfAway")
+      WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+                        stat = "Away", plot = "awayGamesOfAwayStat", head = "awayGamesOfAway")
+
     })
   })
 
-  observeEvent(eventExpr = input$leagueTH, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTH, season = input$leagueS, country = input$leagueC,
-                  stat = "Home", plot = "homeGamesOfHomeStat", head = "homeGamesOfHome")
-    })
-  })
+  # observeEvent(eventExpr = input$home, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
+  #                 stat = "All", plot = "allGamesOfHomeStat", head = "allGamesOfHome")
+  #   })
+  # })
 
-  observeEvent(eventExpr = input$leagueTH, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTH, season = input$leagueS, country = input$leagueC,
-                  stat = "Away", plot = "awayGamesOfHomeStat", head = "awayGamesOfHome")
-    })
-  })
+  # observeEvent(eventExpr = input$home, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
+  #                 stat = "Home", plot = "homeGamesOfHomeStat", head = "homeGamesOfHome")
+  #   })
+  # })
 
-  observeEvent(eventExpr = input$leagueTA, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTA, season = input$leagueS, country = input$leagueC,
-                  stat = "All", plot = "allGamesOfAwayStat", head = "allGamesOfAway")
-    })
+  # observeEvent(eventExpr = input$home, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$home, season = input$season, country = input$country,
+  #                 stat = "Away", plot = "awayGamesOfHomeStat", head = "awayGamesOfHome")
+  #   })
+  # })
 
-  })
+  # observeEvent(eventExpr = input$away, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+  #                 stat = "All", plot = "allGamesOfAwayStat", head = "allGamesOfAway")
+  #   })
 
-  observeEvent(eventExpr = input$leagueTA, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTA, season = input$leagueS, country = input$leagueC,
-                  stat = "Home", plot = "homeGamesOfAwayStat", head = "homeGamesOfAway")
-    })
-  })
-  observeEvent(eventExpr = input$leagueTA, {
-    withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
-      WinDrawLost(output = output, team = input$leagueTA, season = input$leagueS, country = input$leagueC,
-                  stat = "Away", plot = "awayGamesOfAwayStat", head = "awayGamesOfAway")
-    })
-  })
+  # })
+
+  # observeEvent(eventExpr = input$away, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+  #                 stat = "Home", plot = "homeGamesOfAwayStat", head = "homeGamesOfAway")
+  #   })
+  # })
+  # observeEvent(eventExpr = input$away, {
+  #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+  #     WinDrawLost(output = output, team = input$away, season = input$season, country = input$country,
+  #                 stat = "Away", plot = "awayGamesOfAwayStat", head = "awayGamesOfAway")
+  #   })
+  # })
 
   # output$homeHTML <- DT::renderDataTable({
 
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
   #     val <- round(c(
-  #       Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS)$ChiSquare$p.value,
-  #       ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS)$ChiSquare$p.value,
-  #       Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS)$ChiSquare,
-  #       Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS)$ChiSquare$p.value,
-  #       NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS)$ChiSquare$p.value
+  #       Poisson(country = input$country, team = input$home, season = input$season)$ChiSquare$p.value,
+  #       ZIP(country = input$country, team = input$home, season = input$season)$ChiSquare$p.value,
+  #       Uniform(country = input$country, team = input$home, season = input$season)$ChiSquare,
+  #       Geometric(country = input$country, team = input$home, season = input$season)$ChiSquare$p.value,
+  #       NBD(country = input$country, team = input$home, season = input$season)$ChiSquare$p.value
   #     ), 3)
   #     data <- data.frame("Model" = c("Poisson Distribution", "Zero-Inflated-Poisson Distribution", "Uniform Distribution", "Geometric Distribution", "Negative-Binomial Distribution"),
   #                        "p-value" = val)
@@ -947,11 +1002,11 @@ shinyServer(function(input, output, session) {
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
   #     val <- round(c(
-  #       Poisson(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-  #       ZIP(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-  #       Uniform(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare,
-  #       Geometric(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value,
-  #       NBD(country = input$leagueC, team = input$leagueTA, season = input$leagueS)$ChiSquare$p.value
+  #       Poisson(country = input$country, team = input$away, season = input$season)$ChiSquare$p.value,
+  #       ZIP(country = input$country, team = input$away, season = input$season)$ChiSquare$p.value,
+  #       Uniform(country = input$country, team = input$away, season = input$season)$ChiSquare,
+  #       Geometric(country = input$country, team = input$away, season = input$season)$ChiSquare$p.value,
+  #       NBD(country = input$country, team = input$away, season = input$season)$ChiSquare$p.value
   #     ), 3)
   #     data <- data.frame("Model" = c("Poisson Distribution", "Zero-Inflated-Poisson Distribution", "Uniform Distribution", "Geometric Distribution", "Negative-Binomial Distribution"),
   #                        "p-value" = val)
@@ -969,19 +1024,19 @@ shinyServer(function(input, output, session) {
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
   #     away <- list(
-  #       "Poisson" = Poisson(country = input$leagueC, team = input$leagueTA, season = input$leagueS),
-  #       "ZIP" = ZIP(country = input$leagueC, team = input$leagueTA, season = input$leagueS),
-  #       "Uniform" = Uniform(country = input$leagueC, team = input$leagueTA, season = input$leagueS),
-  #       "Geometric" = Geometric(country = input$leagueC, team = input$leagueTA, season = input$leagueS),
-  #       "NBD" = NBD(country = input$leagueC, team = input$leagueTA, season = input$leagueS)
+  #       "Poisson" = Poisson(country = input$country, team = input$away, season = input$season),
+  #       "ZIP" = ZIP(country = input$country, team = input$away, season = input$season),
+  #       "Uniform" = Uniform(country = input$country, team = input$away, season = input$season),
+  #       "Geometric" = Geometric(country = input$country, team = input$away, season = input$season),
+  #       "NBD" = NBD(country = input$country, team = input$away, season = input$season)
   #     )
 
   #     home <- list(
-  #       "Poisson" = Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS),
-  #       "ZIP" = ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS),
-  #       "Uniform" = Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS),
-  #       "Geometric" = Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS),
-  #       "NBD" = NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS)
+  #       "Poisson" = Poisson(country = input$country, team = input$home, season = input$season),
+  #       "ZIP" = ZIP(country = input$country, team = input$home, season = input$season),
+  #       "Uniform" = Uniform(country = input$country, team = input$home, season = input$season),
+  #       "Geometric" = Geometric(country = input$country, team = input$home, season = input$season),
+  #       "NBD" = NBD(country = input$country, team = input$home, season = input$season)
   #     )
 
   #     pHome <- 0
@@ -1059,19 +1114,19 @@ shinyServer(function(input, output, session) {
   #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
   #     away <- list(
-  #       "Poisson" = Poisson(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
-  #       "ZIP" = ZIP(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
-  #       "Uniform" = Uniform(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
-  #       "Geometric" = Geometric(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE),
-  #       "NBD" = NBD(country = input$leagueC, team = input$leagueTA, season = input$leagueS, against = TRUE)
+  #       "Poisson" = Poisson(country = input$country, team = input$away, season = input$season, against = TRUE),
+  #       "ZIP" = ZIP(country = input$country, team = input$away, season = input$season, against = TRUE),
+  #       "Uniform" = Uniform(country = input$country, team = input$away, season = input$season, against = TRUE),
+  #       "Geometric" = Geometric(country = input$country, team = input$away, season = input$season, against = TRUE),
+  #       "NBD" = NBD(country = input$country, team = input$away, season = input$season, against = TRUE)
   #     )
 
   #     home <- list(
-  #       "Poisson" = Poisson(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
-  #       "ZIP" = ZIP(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
-  #       "Uniform" = Uniform(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
-  #       "Geometric" = Geometric(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE),
-  #       "NBD" = NBD(country = input$leagueC, team = input$leagueTH, season = input$leagueS, against = TRUE)
+  #       "Poisson" = Poisson(country = input$country, team = input$home, season = input$season, against = TRUE),
+  #       "ZIP" = ZIP(country = input$country, team = input$home, season = input$season, against = TRUE),
+  #       "Uniform" = Uniform(country = input$country, team = input$home, season = input$season, against = TRUE),
+  #       "Geometric" = Geometric(country = input$country, team = input$home, season = input$season, against = TRUE),
+  #       "NBD" = NBD(country = input$country, team = input$home, season = input$season, against = TRUE)
   #     )
 
   #     pHome <- 0

@@ -6,8 +6,6 @@ require(ggplot2)
 require(RSQLite)
 require(reshape2)
 
-options(scipen=999)
-
 source("InitDB.R")
 source("LoadPreferences.R")
 source("GetCountry.R")
@@ -17,9 +15,9 @@ source("GetTeams.R")
 source("GetLeagueTable.R")
 source("GetHomeVsAway.R")
 source("GetTableOfSeason.R")
-source("UpdateLeagueL.R")
-source("UpdateLeagueS.R")
-source("UpdateLeagueT.R")
+source("Updateleague.R")
+source("Updateseason.R")
+source("Updateteam.R")
 source("StatsTeamData.R")
 source("Poisson.R")
 source("ZeroInflatedPoisson.R")
@@ -31,55 +29,85 @@ source("WinDrawLost.R")
 seasons <- rev(GetSeasons())
 country <- GetCountry()
 leagues <- GetLeagues()
-teams <- GetTeams()
 
-header <- dashboardHeader(
-
-  title = "PesPila"
-
-)
+header <- dashboardHeader(title = "PesPila")
 
 sidebar <- dashboardSidebar(
 
   tags$link(rel = "stylesheet", type = "text/css", href = "/css/styles.css"),
 
-  sidebarMenu(
-    menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
-    menuItem("Tables", tabName = "results", icon = icon("th")),
-    menuItem("Distributions", tabName = "dists", icon = icon("database")),
-    menuItem("Forecast", tabName = "forecasts", icon = icon("database"))
-  ),
-
-  selectInput("leagueC",
-              label = "Choose a Country",
-              choices = country,
-              selected = country[1]),
-
-  selectInput("leagueL",
-              label = "Choose a League",
-              choices = leagues,
-              selected = leagues[1]),
-
-  selectInput("leagueS",
-              label = "Choose a Season",
-              choices = seasons,
-              selected = seasons[1]),
-
-  selectInput("leagueTH",
-              label = "Choose a Home Team",
-              choices = teams,
-              selected = teams[1]),
-
-  selectInput("leagueTA",
-              label = "Choose a Away Team",
-              choices = teams,
-              selected = teams[2])
+  sidebarMenu(id = "tabs",
+    menuItem("Home", tabName = "home", icon = icon("bank")),
+    menuItem("Get Home vs. Away", tabName = "getCompare", icon = icon("binoculars"),
+      menuSubItem(icon = NULL,
+        fluidRow(
+          selectInput(inputId = "home", label = "Choose a Home Team", choices = "", selected = ""),
+          selectInput(inputId = "away", label = "Choose a Away Team", choices = "", selected = ""),
+          p(class = "text-center",
+            actionButton(inputId = "getVS", label = "Get Comparison")
+          )
+        )
+      )
+    ),
+    menuItem("Get Distributions & Forecast", tabName = "getDist", icon = icon("binoculars"),
+      menuSubItem(icon = NULL,
+        fluidRow(
+          selectInput(inputId = "team", label = "Choose a Team", choices = ""),
+          p(class = "text-center",
+            actionButton(inputId = "getForecasts", label = "Get Forecasts")
+          )
+        )
+      )
+    ),
+    menuItem("Dashboard", tabName = "overview", icon = icon("dashboard")),
+    menuItem("Tables", tabName = "tables", icon = icon("table")),
+    menuItem("Distributions", tabName = "distributions", icon = icon("line-chart")),
+    menuItem("Forecast", tabName = "forecast", icon = icon("money"))
+  )
 
 )
 
 body <- dashboardBody(
 
   tabItems(
+
+    tabItem(tabName = "home",
+
+      fluidRow(class = "text-center",
+        
+        h1("Welcome to PesPila"),
+
+        column(width = 6, offset = 3,
+
+          box(width = 12, title = "Select Country, League and Season", background = "light-blue",
+              solidHeader = TRUE,
+
+            fluidRow(
+
+              column(width = 6, offset = 3,
+
+                selectInput(inputId = "country", label = "Choose a Country", choices = country, selected = country[1]),
+                p(class = "text-center",
+                  actionButton(inputId = "getLeagues", label = "Update Leagues")
+                ),
+                selectInput(inputId = "league", label = "Choose a League", choices = leagues, selected = leagues[1]),
+                p(class = "text-center",
+                  actionButton(inputId = "getSeasons", label = "Update Seasons")
+                ),
+                selectInput(inputId = "season", label = "Choose a Season", choices = seasons, selected = seasons[1]),
+                p(class = "text-center",
+                  actionButton(inputId = "getSetting", label = "Submit Setting")
+                )
+
+              )
+
+            )
+
+          )
+
+        )
+      )
+    ),
 
     tabItem(tabName = "overview",
 
@@ -147,7 +175,7 @@ body <- dashboardBody(
 
     ),
 
-    tabItem(tabName = "results",
+    tabItem(tabName = "tables",
 
       fluidRow(
 
@@ -196,7 +224,7 @@ body <- dashboardBody(
 
     ),
 
-    tabItem(tabName = "dists",
+    tabItem(tabName = "distributions",
 
       fluidRow(
 
@@ -407,7 +435,7 @@ body <- dashboardBody(
 
     ),
 
-    tabItem(tabName = "forecasts",
+    tabItem(tabName = "forecast",
 
       fluidRow(
 
@@ -428,6 +456,6 @@ body <- dashboardBody(
 
 shinyUI(
 
-  dashboardPage(header, sidebar, body, skin = "black")
+  dashboardPage(header, sidebar, body, skin = "blue")
 
 )
