@@ -33,7 +33,7 @@ GetHomeVsAway <- function(country = "Germany", home = "Bayern Munich", away = "D
 				 			 round(mean(as.numeric(data[, "HTAG"]), na.rm = TRUE), 2),
 				 			 paste0(length(which(data[, "FTR"] == "H")), "/", length(which(data[, "FTR"] == "D")), "/", length(which(data[, "FTR"] == "A")))
 							)
-	summary <- paste0("<font size=4><b>", summary, "</b></font>", sep = "")
+	# summary <- paste0("<font size=4><b>", summary, "</b></font>", sep = "")
 
 	data <- rbind(summary, data)
 

@@ -49,12 +49,23 @@ sidebar <- dashboardSidebar(
         )
       )
     ),
-    menuItem("Get Distributions & Forecast", tabName = "getDist", icon = icon("binoculars"),
+    menuItem("Get Distributions", tabName = "getDist", icon = icon("binoculars"),
       menuSubItem(icon = NULL,
         fluidRow(
           selectInput(inputId = "team", label = "Choose a Team", choices = ""),
           p(class = "text-center",
-            actionButton(inputId = "getForecasts", label = "Get Forecasts")
+            actionButton(inputId = "getDistributions", label = "Get Distributions")
+          )
+        )
+      )
+    ),
+    menuItem("Get Forecast", tabName = "getFore", icon = icon("binoculars"),
+      menuSubItem(icon = NULL,
+        fluidRow(
+          selectInput(inputId = "fHome", label = "Choose a Home Team", choices = "", selected = ""),
+          selectInput(inputId = "fAway", label = "Choose a Away Team", choices = "", selected = ""),
+          p(class = "text-center",
+            actionButton(inputId = "getForecast", label = "Get Forecast")
           )
         )
       )
@@ -442,8 +453,12 @@ body <- dashboardBody(
         column(8, offset = 2, class = "text-center",
 
           h1("Forecast"),
-          dataTableOutput("predictScored")
-
+          # dataTableOutput("predictScored"),
+          fluidRow(
+            p(class = "text-center",
+             uiOutput("prediction")
+            )
+          )
         )
 
       )

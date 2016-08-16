@@ -440,3 +440,150 @@ SetDist2 <- function() {
 
   return (dist)
 }
+
+Forecast <- function() {
+  hParm <- ""
+  aParm <- ""
+  hProb <- rep(x = 0, times = 6)
+  aProb <- rep(x = 0, times = 6)
+  goals <- 0:5
+  ngoal <- length(goals)
+  mat <- data.frame(matrix(data = 0, nrow = ngoal, ncol = ngoal))
+  colnames(mat) <- 0:5
+  rownames(mat) <- 0:5
+  hWin <- 0
+  aWin <- 0
+  draw <- 0
+  tMax <- 0
+  tInd <- c()
+
+  assign(x = "ppConn",
+         dbConnect(SQLite(), "inst/shiny-examples/PesPila/data/PesPilaDB.db"),
+         envir = .GlobalEnv)
+  country <- "select * from Countries"
+  country <- dbGetQuery(conn = ppConn, statement = country)
+  hTable <- c("Scored", "Conceded")
+  aTable <- c("Scored", "Conceded")
+
+  data.set <- data.frame()
+  colnames(data.set) <- c("Home", "Away", "HG", "AG", "R", "SvSHG", "SvSAG", "SvSR", "CvCHG", "CvCAG", "CvCR",
+  												"SvCHG", "SvCAG", "SvCR", "CvSHG", "CvSAG", "CvSR")
+
+	for (l in 1:nrow(country)) {
+
+		games <- paste0("select * from ", country[l, "Country"])
+	  games <- dbGetQuery(conn = ppConn, statement = games)
+	  games <- cbind(games, "SvS")
+
+	  out <- data.frame("hWin" = hWin, "draw" = draw, "aWin" = aWin, "homeOdd" = homeOdd, "drawOdd" = drawOdd,
+				                    "awayOdd" = awayOdd, "FTHG" = tInd[1], "FTAG" = tInd[2])
+
+	  for (i in 1:nrow(games)) {
+
+	  	for (homeTable in hTable) {
+
+	  		for (awayTable in aTable) {
+  
+				  home <- paste0("select A.Dist from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", games[i, "Season"], "' and A.Season_ID = B.Season_ID and C.Team = '", games[i, "HomeTeam"], "' and A.Team_ID = C.Team_ID and D.Country = '", country[l, "Country"], "' and A.Country_ID = D.Country_ID")
+				  home <- as.character(dbGetQuery(conn = ppConn, statement = home)[1, "Dist"])
+				  hStr <- strsplit(home, split = "_")[[1]]
+
+				  if (hStr[1] == "Poisson") {
+				    hParm <- paste0(hStr[1], "_Lambda")
+				  } else if (hStr[1] == "ZIP") {
+				    hParm <- paste0(hStr[1], c("_Phi", "_Lambda"))
+				  } else if (hStr[1] == "Uniform") {
+				    hParm <- paste0(hStr[1], c("_A", "_B"))
+				  } else if (hStr[1] == "Geometric") {
+				    hParm <- paste0(hStr[1], "_P")
+				  } else if (hStr[1] == "NBD") {
+				    hParm <- paste0(hStr[1], c("_K", "_P"))
+				  }
+
+				  query <- paste0("select ", paste0("A.", home), ", ", paste("A.", hParm, collapse = ","), " from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", games[i, "Season"], "' and A.Season_ID = B.Season_ID and C.Team = '", games[i, "HomeTeam"], "' and A.Team_ID = C.Team_ID and D.Country = '", country[l, "Country"], "' and A.Country_ID = D.Country_ID")
+				  home <- dbGetQuery(conn = ppConn, statement = query)[1, ]
+				  
+				  away <- paste0("select A.Dist from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", games[i, "Season"], "' and A.Season_ID = B.Season_ID and C.Team = '", games[i, "AwayTeam"], "' and A.Team_ID = C.Team_ID and D.Country = '", country[l, "Country"], "' and A.Country_ID = D.Country_ID")
+				  away <- as.character(dbGetQuery(conn = ppConn, statement = away)[1, "Dist"])
+				  aStr <- strsplit(away, split = "_")[[1]]
+				  
+				  if (aStr[1] == "Poisson") {
+				    aParm <- paste0(aStr[1], "_Lambda")
+				  } else if (aStr[1] == "ZIP") {
+				    aParm <- paste0(aStr[1], c("_Phi", "_Lambda"))
+				  } else if (aStr[1] == "Uniform") {
+				    aParm <- paste0(aStr[1], c("_A", "_B"))
+				  } else if (aStr[1] == "Geometric") {
+				    aParm <- paste0(aStr[1], "_P")
+				  } else if (aStr[1] == "NBD") {
+				    aParm <- paste0(aStr[1], c("_K", "_P"))
+				  }
+
+				  query <- paste0("select ", paste0("A.", away), ", ", paste("A.", aParm, collapse = ","), " from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", games[i, "Season"], "' and A.Season_ID = B.Season_ID and C.Team = '", games[i, "AwayTeam"], "' and A.Team_ID = C.Team_ID and D.Country = '", country[l, "Country"], "' and A.Country_ID = D.Country_ID")
+				  away <- dbGetQuery(conn = ppConn, statement = query)[1, ]
+
+				  if (hStr[1] == "Poisson") {
+				    hProb <- dpois(x = goals, lambda = home[1, "Poisson_Lambda"])
+				  } else if (hStr[1] == "ZIP") {
+				    hProb <- dzipois(x = goals, lambda = home[1, "ZIP_Lambda"], phi = home[1, "ZIP_Phi"])
+				  } else if (hStr[1] == "Uniform") {
+				    hProb[which(goals <= home[1, "Uniform_B"])] <- 1/(home[1, "Uniform_B"] - home[1, "Uniform_A"] + 1)
+				  } else if (hStr[1] == "Geometric") {
+				    hProb <- dgeom(x = goals, prob = home[1, "Geometric_P"])
+				  } else if (hStr[1] == "NBD") {
+				    hProb <- dnbinom(x = goals, mu = home[1, "NBD_K"], size = home[1, "NBD_P"])
+				  }
+
+				  if (aStr[1] == "Poisson") {
+				    aProb <- dpois(x = goals, lambda = away[, "Poisson_Lambda"])
+				  } else if (aStr[1] == "ZIP") {
+				    aProb <- dzipois(x = goals, lambda = away[1, "ZIP_Lambda"], phi = away[1, "ZIP_Phi"])
+				  } else if (aStr[1] == "Uniform") {
+				    aProb[which(goals <= away[1, "Uniform_B"])] <- 1/(away[1, "Uniform_B"] - away[1, "Uniform_A"] + 1)
+				  } else if (aStr[1] == "Geometric") {
+				    aProb <- dgeom(x = goals, prob = away[1, "Geometric_P"])
+				  } else if (aStr[1] == "NBD") {
+				    aProb <- dnbinom(x = goals, mu = away[1, "NBD_K"], size = away[1, "NBD_P"])
+				  }
+
+				  for (i in 1:ngoal) {
+				    for (j in 1:ngoal) {
+				      mat[i, j] <- hProb[i] * aProb[j]
+				      
+				      if (i == j) {
+				        draw <- draw + mat[i, j] * 100
+				      } else if (j > i) {
+				        aWin <- aWin + mat[i, j] * 100
+				      } else {
+				        hWin <- hWin + mat[i, j] * 100
+				      }
+
+				      if (mat[i, j] > tMax) {
+				        tMax <- mat[i, j]
+				        tInd <- c(i-1, j-1)
+				      }
+				    }
+				  }
+
+				  homeOdd <- if ((100/hWin) - 1 < 1) {1.0} else {(100/hWin) - 1}
+				  drawOdd <- if ((100/draw) - 1 < 1) {1.0} else {(100/draw) - 1}
+				  awayOdd <- if ((100/aWin) - 1 < 1) {1.0} else {(100/aWin) - 1}
+
+				  out <- data.frame("hWin" = hWin, "draw" = draw, "aWin" = aWin, "homeOdd" = homeOdd, "drawOdd" = drawOdd,
+				                    "awayOdd" = awayOdd, "FTHG" = tInd[1], "FTAG" = tInd[2])
+
+				 	assign(x = "conc.data",
+				         dist,
+				         envir = .GlobalEnv)
+
+			  }
+	  	
+	  	}
+
+	  }
+
+	}
+	dbDisconnect(conn = ppConn)
+
+  return (out)
+}

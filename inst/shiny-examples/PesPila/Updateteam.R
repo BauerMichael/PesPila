@@ -18,7 +18,13 @@ Updateteam <- function(session, country = "Germany", league = "1. Bundesliga", s
   updateSelectInput(session = session, inputId = "team",
                     choices = teams,
                     selected = teams[1])
+  updateSelectInput(session = session, inputId = "fHome",
+                    choices = teams,
+                    selected = teams[1])
   updateSelectInput(session = session, inputId = "away",
+                    choices = teams,
+                    selected = teams[2])
+  updateSelectInput(session = session, inputId = "fAway",
                     choices = teams,
                     selected = teams[2])
 
