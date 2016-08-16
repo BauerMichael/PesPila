@@ -22,9 +22,9 @@ dzipois <- function(x, lambda, phi) {
 }
 
 OptParsZIP <- function(pars, A, B, C, D) {
-		E <- sum(A*B*(dzipois(x = C, lambda = pars[1], phi = pars[2])-D)^2)
-		return (E)
-	}
+	E <- sum(A*B*(dzipois(x = C, lambda = pars[1], phi = pars[2])-D)^2)
+	return (E)
+}
 
 ZIP <- function(country = "Germany", team = "Bayern Munich", season = '15/16', against = FALSE) {
 	# Get seasons in a given country for a given league.

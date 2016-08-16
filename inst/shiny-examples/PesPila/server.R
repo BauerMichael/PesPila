@@ -1,4 +1,15 @@
-TestPredict <- function(session, input, output, homeTable, awayTable) {
+# OptParsZIP <- function(pars, A, B, C, D) {
+#   E <- sum(A*B*(dzipois(x = C, lambda = pars[1], phi = pars[2])-D)^2)
+#   return (E)
+# }
+# Opt <- optim(pars, OptParsZIP, A = data$Freq, B = data$FreqWeight, C = data$Goals, D = data$RelFreq)
+
+# OptParsLambda <- function(pars, THG, TAG, HG, AG) {
+#   F <- pars[1] * (THG - HG - (TAG - AG))
+#   return (F)
+# }
+
+TestPredict <- function(session, input, output, homeTable, awayTable, table) {
   hParm <- ""
   aParm <- ""
   hProb <- rep(x = 0, times = 6)
@@ -95,67 +106,124 @@ TestPredict <- function(session, input, output, homeTable, awayTable) {
         hWin <- hWin + mat[i, j] * 100
       }
 
-      if (mat[i, j] > tMax) {
-        # mat[i, j] <- paste0('<font style="background-color:red;color:white;">', mat[i, j], '</font>')
-        tMax <- mat[i, j]
-        tInd <- c(i-1, j-1)
+      # if (mat[i, j] > tMax) {
+      #   # mat[i, j] <- paste0('<font style="background-color:red;color:white;">', mat[i, j], '</font>')
+      #   tMax <- mat[i, j]
+      #   # tInd <- c(i, j)
+      #   tInd <- c(i-1, j-1)
+      # }
+    }
+  }
+
+
+  if (draw > 25 && hWin > 40) {
+    for (i in 1:ngoal) {
+      for (j in 1:i) {
+        if (mat[i, j] >= tMax) {
+          tInd <- c(i-1, j-1)
+          tMax <- mat[i, j]
+        }
+      }
+    }
+  } else if (draw > 25 && aWin > 40) {
+    for (i in 1:ngoal) {
+      for (j in i:ngoal) {
+        if (mat[i, j] >= tMax) {
+          tInd <- c(i-1, j-1)
+          tMax <- mat[i, j]
+        }
+      }
+    }
+  } else if (hWin > 40) {
+    for (i in 2:ngoal) {
+      for (j in 1:(i-1)) {
+        if (mat[i, j] >= tMax) {
+          tInd <- c(i-1, j-1)
+          tMax <- mat[i, j]
+        }
+      }
+    }
+  } else if (aWin > 40) {
+    for (i in 2:ngoal) {
+      for (j in (i-1):ngoal) {
+        if (mat[i, j] >= tMax) {
+          tInd <- c(i-1, j-1)
+          tMax <- mat[i, j]
+        }
+      }
+    }
+  } else {
+    if (hWin >= aWin && hWin >= draw) {
+      for (i in 2:ngoal) {
+        for (j in 1:(i-1)) {
+          if (mat[i, j] >= tMax) {
+            tInd <- c(i-1, j-1)
+            tMax <- mat[i, j]
+          }
+        }
+      }
+    } else if (aWin >= hWin && aWin >= draw) {
+      for (i in 2:ngoal) {
+        for (j in (i-1):ngoal) {
+          if (mat[i, j] >= tMax) {
+            tInd <- c(i-1, j-1)
+            tMax <- mat[i, j]
+          }
+        }
+      }
+    } else if (draw >= hWin && draw >= aWin) {
+      for (i in 1:ngoal) {
+        if (mat[i, i] >= tMax) {
+          tInd <- c(i-1, i-1)
+          tMax <- mat[i, i]
+        }
       }
     }
   }
 
-  homeOdd <- if ((100/hWin) - 1 < 1) {1.10} else {(100/hWin) - 1}
-  drawOdd <- if ((100/draw) - 1 < 1) {1.10} else {(100/draw) - 1}
-  awayOdd <- if ((100/aWin) - 1 < 1) {1.10} else {(100/aWin) - 1}
+  # xi <- 1
+  # xn <- ngoal
+
+  # if (draw < 25) {
+  #   xi <- 2
+  # } else if (hWin >= 40 || aWin >= 40) {
+  #   xi <- 2
+  # }
+
+  # for (i in xi:xn) {
+  #   if (hWin >= 40) {
+  #     for (j in 2:i) {
+  #       if (mat[i, j] >= tMax) {
+  #         tInd <- c(i-1, j-1)
+  #         tMax <- mat[i, j]
+  #       }
+  #     }
+  #   } else if (aWin >= 40) {
+  #     for (j in i:xn) {
+  #       if (mat[i, j] >= tMax) {
+  #         tInd <- c(i-1, j-1)
+  #         tMax <- mat[i, j]
+  #       }
+  #     }
+  #   } else {
+  #     for (j in 1:ngoal) {
+  #       if (mat[i, j] >= tMax) {
+  #         tInd <- c(i-1, j-1)
+  #         tMax <- mat[i, j]
+  #       }
+  #     }
+  #   }
+  # }
+
+  homeOdd <- if ((100/hWin) - 1 < 1) {1.0} else {(100/hWin) - 1}
+  drawOdd <- if ((100/draw) - 1 < 1) {1.0} else {(100/draw) - 1}
+  awayOdd <- if ((100/aWin) - 1 < 1) {1.0} else {(100/aWin) - 1}
 
   out <- data.frame("hWin" = hWin, "draw" = draw, "aWin" = aWin, "homeOdd" = homeOdd, "drawOdd" = drawOdd,
                     "awayOdd" = awayOdd, "FTHG" = tInd[1], "FTAG" = tInd[2])
 
-  # test <- GetHomeVsAway(country = input$country, home = input$fHome, away = input$fAway)
-
-  # output$prediction <- renderUI({
-  #   HTML(
-  #     paste(c(
-  #         '<table style="font-size:20px;">
-  #           <tr>
-  #             <td style="padding:5px;"><u>Actual</u></td>
-  #             <td style="padding:5px;"><b>', input$fHome, '</b></td>
-  #             <td style="padding:5px;">', round(as.numeric(test[2, "FTHG"]), 0), '</td>
-  #             <td style="padding:5px;">', round(as.numeric(test[2, "FTAG"]), 0), '</td>
-  #             <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-  #           </tr>
-  #           <tr>
-  #             <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-  #             <td style="padding:5px;">', round(as.numeric(test[1, "FTHG"]), 0), '</td>
-  #             <td style="padding:5px;">', round(as.numeric(test[1, "FTAG"]), 0), '</td>
-  #             <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-  #           </tr>
-  #           <tr>
-  #             <td style="padding:5px;"><b>Home Win:</b></td>
-  #             <td style="padding:5px;">', round(hWin, 2), ' %</td>
-  #             <td style="padding:5px;"><b>Draw:</b></td>
-  #             <td style="padding:5px;">', round(draw, 2), ' %</td>
-  #             <td style="padding:5px;"><b>Away Win:</b></td>
-  #             <td style="padding:5px;">', round(aWin, 2), ' %</td>
-  #           </tr>
-  #           <tr>
-  #             <td style="padding:5px;"><b>Home Odd:</b></td>
-  #             <td style="padding:5px;">', round(homeOdd, 2), '</td>
-  #             <td style="padding:5px;"><b>Draw Odd:</b></td>
-  #             <td style="padding:5px;">', round(drawOdd, 2), '</td>
-  #             <td style="padding:5px;"><b>Away Odd:</b></td>
-  #             <td style="padding:5px;">', round(awayOdd, 2), '</td>
-  #           </tr>
-  #           <tr>
-  #             <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-  #             <td style="padding:5px;">', tInd[1], '</td>
-  #             <td style="padding:5px;">', tInd[2], '</td>
-  #             <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-  #           </tr>
-  #         </table>'
-  #       )
-  #     )
-  #   )
-  # })
+  rownames(mat) <- 0:5
+  output[[table]] <- DT::renderDataTable({datatable(round(mat, 4), rownames = TRUE, escape = FALSE)})
 
   return (out)
 }
@@ -305,24 +373,33 @@ shinyServer(function(input, output, session) {
     })
   })
 
-  # output$predictScored <- DT::renderDataTable({
   output$prediction <- renderUI({
 
     withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
 
       test <- GetHomeVsAway(country = input$country, home = input$fHome, away = input$fAway)
-      SvS <- TestPredict(session = session, input = input, output = output, homeTable = "Scored", awayTable = "Scored")
-      CvC <- TestPredict(session = session, input = input, output = output, homeTable = "Conceded", awayTable = "Conceded")
-      SvC <- TestPredict(session = session, input = input, output = output, homeTable = "Scored", awayTable = "Conceded")
-      CvS <- TestPredict(session = session, input = input, output = output, homeTable = "Conceded", awayTable = "Scored")
+      SvS <- TestPredict(session = session, input = input, output = output, homeTable = "Scored", awayTable = "Scored", table = "SvS")
+      CvC <- TestPredict(session = session, input = input, output = output, homeTable = "Conceded", awayTable = "Conceded", table = "CvC")
+      # SvC <- TestPredict(session = session, input = input, output = output, homeTable = "Scored", awayTable = "Conceded", table = "SvC")
+      # CvS <- TestPredict(session = session, input = input, output = output, homeTable = "Conceded", awayTable = "Scored", table = "CvS")
 
-      H <- 1.5 * (SvS[1, "FTHG"] + CvC[1, "FTHG"] + SvC[1, "FTHG"] + CvS[1, "FTHG"] + as.numeric(test[1, "FTHG"])) / 5
-      A <- (SvS[1, "FTAG"] + CvC[1, "FTAG"] + SvC[1, "FTAG"] + CvS[1, "FTAG"] + as.numeric(test[1, "FTAG"])) / 5
+
+      s <- as.numeric(test[1, "FTHG"]) + as.numeric(test[1, "FTAG"])
+      if (s == 0) {s <- 1}
+      H <- (SvS[1, "FTHG"] + CvC[1, "FTHG"]) * (as.numeric(test[2, "FTHG"]) / s)
+      A <- (SvS[1, "FTAG"] + CvC[1, "FTAG"]) * (as.numeric(test[2, "FTAG"]) / s)
+      # H <- (0.66 * SvS[1, "FTHG"] + 0.33 * CvC[1, "FTHG"])
+      # A <- (0.66 * SvS[1, "FTAG"] + 0.33 * CvC[1, "FTAG"]) / 1.5
+      # H <- (0.66 * SvS[1, "FTHG"] + 0.33 * CvC[1, "FTHG"] + as.numeric(test[1, "FTHG"]))
+      # A <- (0.66 * SvS[1, "FTAG"] + 0.33 * CvC[1, "FTAG"] + as.numeric(test[1, "FTAG"])) / 2
+      # H <- (SvS[1, "FTHG"] + CvC[1, "FTHG"] + SvC[1, "FTHG"] + CvS[1, "FTHG"] + as.numeric(test[1, "FTHG"])) / 4
+      # A <- (SvS[1, "FTAG"] + CvC[1, "FTAG"] + SvC[1, "FTAG"] + CvS[1, "FTAG"] + as.numeric(test[1, "FTAG"])) / 5
       H <- round(H, 0)
       A <- round(A, 0)
+      # pars <- c(lambda = 0.5)
+      # Opt <- optim(pars, OptParsLambda, THG = H, TAG = A, HG = round(as.numeric(test[2, "FTHG"]), 0), AG = round(as.numeric(test[2, "FTAG"]), 0))
 
-      # output$prediction <- renderUI({
         HTML(
           paste(c(
               '<table style="font-size:20px;">
@@ -389,121 +466,10 @@ shinyServer(function(input, output, session) {
                   <td style="padding:5px;">', CvC[1, "FTHG"], '</td>
                   <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
                 </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Win:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "hWin"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Draw:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "draw"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Away Win:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "aWin"], 2), ' %</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Odd:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "homeOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Draw Odd:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "drawOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Away Odd:</b></td>
-                  <td style="padding:5px;">', round(SvC[1, "awayOdd"], 2), '</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-                  <td style="padding:5px;">', SvC[1, "FTHG"], '</td>
-                  <td style="padding:5px;">', SvC[1, "FTAG"], '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Win:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "aWin"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Draw:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "draw"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Away Win:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "hWin"], 2), ' %</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Odd:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "awayOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Draw Odd:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "drawOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Away Odd:</b></td>
-                  <td style="padding:5px;">', round(CvS[1, "homeOdd"], 2), '</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-                  <td style="padding:5px;">', CvS[1, "FTAG"], '</td>
-                  <td style="padding:5px;">', CvS[1, "FTHG"], '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-                </tr>
               </table>'
             )
           )
         )
-      # })
-
-      # pHome <- 0
-      # pAway <- 0
-      # iHome <- 0
-      # iAway <- 0
-      # hVec <- c()
-      # aVec <- c()
-      # for (i in 1:length(home)) {
-      #   hVec <- c(hVec, home[[i]]$ChiSquare$p.value)
-      #   aVec <- c(aVec, away[[i]]$ChiSquare$p.value)
-      #   if (home[[i]]$ChiSquare$p.value > pHome) {
-      #     iHome <- i
-      #     pHome <- home[[i]]$ChiSquare$p.value
-      #   }
-      #   if (away[[i]]$ChiSquare$p.value > pAway) {
-      #     iAway <- i
-      #     pAway <- away[[i]]$ChiSquare$p.value
-      #   }
-      # }
-
-      # nrow <- nrow(home[[iHome]]$Table)
-      # ncol <- nrow(away[[iAway]]$Table)
-      # mat <- data.frame(matrix(0, nrow = nrow, ncol = ncol))
-      # hWin <- 0
-      # aWin <- 0
-      # draw <- 0
-      # for (i in 1:nrow) {
-      #   for (j in 1:ncol) {
-      #     mat[i, j] <- round(home[[iHome]]$Table$NewProbs[i]*away[[iAway]]$Table$NewProbs[j], 4)
-      #     if (i == j) {
-      #       draw <- draw + mat[i, j]*100
-      #     } else if (j > i) {
-      #       aWin <- aWin + mat[i, j]*100
-      #     } else {
-      #       hWin <- hWin + mat[i, j]*100
-      #     }
-      #   }
-      # }
-
-      # colnames(mat) <- 0:5
-      # rownames(mat) <- 0:5
-
-      # med <- (max(mat) - min(mat))/2
-
-      # for (i in 1:nrow) {
-      #   for (j in 1:ncol) {
-      #     if (mat[i,j] > med) {
-      #       mat[i,j] <- paste0('<font style="background-color:red;color:white;">', mat[i,j], '</font>')
-      #     } else {
-      #       mat[i,j] <- paste0('<font style="background-color:#3c8dbc;color:white;">', mat[i,j], '</font>')
-      #     }
-      #   }
-      # }
-
-      # homeOdd <- if (round((100/hWin)-1, 2) < 1) {1.05} else {round((100/hWin)-1, 2)}
-      # drawOdd <- if (round((100/draw)-1, 2) < 1) {1.05} else {round((100/draw)-1, 2)}
-      # awayOdd <- if (round((100/aWin)-1, 2) < 1) {1.05} else {round((100/aWin)-1, 2)}
-
-      # mat$Probs <- c("Home Win", hWin, "Draw", draw, "Away Win", aWin)
-      # mat$Odds <- c("Home Win", homeOdd, "Draw", drawOdd, "Away Win", awayOdd)
-
-      # datatable(mat,
-      #     rownames = TRUE,
-      #     escape = FALSE,
-      #     extensions = c('Responsive')
-      # )
 
     })
 
