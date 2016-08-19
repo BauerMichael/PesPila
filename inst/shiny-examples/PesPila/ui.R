@@ -453,10 +453,10 @@ body <- dashboardBody(
         column(8, offset = 2, class = "text-center",
 
           h1("Forecast"),
-          dataTableOutput("SvS"),
-          dataTableOutput("CvC"),
-          dataTableOutput("SvC"),
-          dataTableOutput("CvS"),
+          # dataTableOutput("SvS"),
+          # dataTableOutput("CvC"),
+          # dataTableOutput("SvC"),
+          # dataTableOutput("CvS"),
           fluidRow(
             p(class = "text-center",
              uiOutput("prediction")

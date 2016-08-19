@@ -21,7 +21,6 @@ GetHomeVsAway <- function(country = "Germany", home = "Bayern Munich", away = "D
 
 	dbDisconnect(conn = ppConn)
 	
-	print(query)
 	data[data == "NA"] <- NA
 	data <- data[nrow(data):1, 3:ncol(data)]
 

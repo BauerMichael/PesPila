@@ -9,224 +9,179 @@
 #   return (F)
 # }
 
-TestPredict <- function(session, input, output, homeTable, awayTable, table) {
-  hParm <- ""
-  aParm <- ""
-  hProb <- rep(x = 0, times = 6)
-  aProb <- rep(x = 0, times = 6)
-  goals <- 0:5
-  ngoal <- length(goals)
-  mat <- data.frame(matrix(data = 0, nrow = ngoal, ncol = ngoal))
-  colnames(mat) <- 0:5
-  rownames(mat) <- 0:5
-  hWin <- 0
-  aWin <- 0
-  draw <- 0
-  tMax <- 0
-  tInd <- c()
+# TestPredict <- function(session, input, output, homeTable, awayTable, table) {
+#   hParm <- ""
+#   aParm <- ""
+#   hProb <- rep(x = 0, times = 6)
+#   aProb <- rep(x = 0, times = 6)
+#   goals <- 0:5
+#   ngoal <- length(goals)
+#   mat <- data.frame(matrix(data = 0, nrow = ngoal, ncol = ngoal))
+#   colnames(mat) <- 0:5
+#   rownames(mat) <- 0:5
+#   hWin <- 0
+#   aWin <- 0
+#   draw <- 0
+#   tMax <- 0
+#   tInd <- c()
 
-  InitDB()
+#   InitDB()
   
-  home <- paste0("select A.Dist from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fHome, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
-  home <- as.character(dbGetQuery(conn = ppConn, statement = home)[1, "Dist"])
-  hStr <- strsplit(home, split = "_")[[1]]
+#   home <- paste0("select A.Dist from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fHome, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+#   home <- as.character(dbGetQuery(conn = ppConn, statement = home)[1, "Dist"])
+#   hStr <- strsplit(home, split = "_")[[1]]
 
-  if (hStr[1] == "Poisson") {
-    hParm <- paste0(hStr[1], "_Lambda")
-  } else if (hStr[1] == "ZIP") {
-    hParm <- paste0(hStr[1], c("_Phi", "_Lambda"))
-  } else if (hStr[1] == "Uniform") {
-    hParm <- paste0(hStr[1], c("_A", "_B"))
-  } else if (hStr[1] == "Geometric") {
-    hParm <- paste0(hStr[1], "_P")
-  } else if (hStr[1] == "NBD") {
-    hParm <- paste0(hStr[1], c("_K", "_P"))
-  }
+#   if (hStr[1] == "Poisson") {
+#     hParm <- paste0(hStr[1], "_Lambda")
+#   } else if (hStr[1] == "ZIP") {
+#     hParm <- paste0(hStr[1], c("_Phi", "_Lambda"))
+#   } else if (hStr[1] == "Uniform") {
+#     hParm <- paste0(hStr[1], c("_A", "_B"))
+#   } else if (hStr[1] == "Geometric") {
+#     hParm <- paste0(hStr[1], "_P")
+#   } else if (hStr[1] == "NBD") {
+#     hParm <- paste0(hStr[1], c("_K", "_P"))
+#   }
 
-  query <- paste0("select ", paste0("A.", home), ", ", paste("A.", hParm, collapse = ","), " from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fHome, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
-  home <- dbGetQuery(conn = ppConn, statement = query)[1, ]
+#   query <- paste0("select ", paste0("A.", home), ", ", paste("A.", hParm, collapse = ","), " from ", homeTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fHome, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+#   home <- dbGetQuery(conn = ppConn, statement = query)[1, ]
   
-  away <- paste0("select A.Dist from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fAway, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
-  away <- as.character(dbGetQuery(conn = ppConn, statement = away)[1, "Dist"])
-  aStr <- strsplit(away, split = "_")[[1]]
+#   away <- paste0("select A.Dist from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fAway, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+#   away <- as.character(dbGetQuery(conn = ppConn, statement = away)[1, "Dist"])
+#   aStr <- strsplit(away, split = "_")[[1]]
   
-  if (aStr[1] == "Poisson") {
-    aParm <- paste0(aStr[1], "_Lambda")
-  } else if (aStr[1] == "ZIP") {
-    aParm <- paste0(aStr[1], c("_Phi", "_Lambda"))
-  } else if (aStr[1] == "Uniform") {
-    aParm <- paste0(aStr[1], c("_A", "_B"))
-  } else if (aStr[1] == "Geometric") {
-    aParm <- paste0(aStr[1], "_P")
-  } else if (aStr[1] == "NBD") {
-    aParm <- paste0(aStr[1], c("_K", "_P"))
-  }
+#   if (aStr[1] == "Poisson") {
+#     aParm <- paste0(aStr[1], "_Lambda")
+#   } else if (aStr[1] == "ZIP") {
+#     aParm <- paste0(aStr[1], c("_Phi", "_Lambda"))
+#   } else if (aStr[1] == "Uniform") {
+#     aParm <- paste0(aStr[1], c("_A", "_B"))
+#   } else if (aStr[1] == "Geometric") {
+#     aParm <- paste0(aStr[1], "_P")
+#   } else if (aStr[1] == "NBD") {
+#     aParm <- paste0(aStr[1], c("_K", "_P"))
+#   }
 
-  query <- paste0("select ", paste0("A.", away), ", ", paste("A.", aParm, collapse = ","), " from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fAway, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
-  away <- dbGetQuery(conn = ppConn, statement = query)[1, ]
+#   query <- paste0("select ", paste0("A.", away), ", ", paste("A.", aParm, collapse = ","), " from ", awayTable, " A, Seasons B, Teams C, Countries D where B.Season = '", input$season, "' and A.Season_ID = B.Season_ID and C.Team = '", input$fAway, "' and A.Team_ID = C.Team_ID and D.Country = '", input$country, "' and A.Country_ID = D.Country_ID")
+#   away <- dbGetQuery(conn = ppConn, statement = query)[1, ]
 
-  dbDisconnect(conn = ppConn)
+#   dbDisconnect(conn = ppConn)
 
-  if (hStr[1] == "Poisson") {
-    hProb <- dpois(x = goals, lambda = home[1, "Poisson_Lambda"])
-  } else if (hStr[1] == "ZIP") {
-    hProb <- dzipois(x = goals, lambda = home[1, "ZIP_Lambda"], phi = home[1, "ZIP_Phi"])
-  } else if (hStr[1] == "Uniform") {
-    hProb[which(goals <= home[1, "Uniform_B"])] <- 1/(home[1, "Uniform_B"] - home[1, "Uniform_A"] + 1)
-  } else if (hStr[1] == "Geometric") {
-    hProb <- dgeom(x = goals, prob = home[1, "Geometric_P"])
-  } else if (hStr[1] == "NBD") {
-    hProb <- dnbinom(x = goals, mu = home[1, "NBD_K"], size = home[1, "NBD_P"])
-  }
+#   if (hStr[1] == "Poisson") {
+#     hProb <- dpois(x = goals, lambda = home[1, "Poisson_Lambda"])
+#   } else if (hStr[1] == "ZIP") {
+#     hProb <- dzipois(x = goals, lambda = home[1, "ZIP_Lambda"], phi = home[1, "ZIP_Phi"])
+#   } else if (hStr[1] == "Uniform") {
+#     hProb[which(goals <= home[1, "Uniform_B"])] <- 1/(home[1, "Uniform_B"] - home[1, "Uniform_A"] + 1)
+#   } else if (hStr[1] == "Geometric") {
+#     hProb <- dgeom(x = goals, prob = home[1, "Geometric_P"])
+#   } else if (hStr[1] == "NBD") {
+#     hProb <- dnbinom(x = goals, mu = home[1, "NBD_K"], size = home[1, "NBD_P"])
+#   }
 
-  if (aStr[1] == "Poisson") {
-    aProb <- dpois(x = goals, lambda = away[, "Poisson_Lambda"])
-  } else if (aStr[1] == "ZIP") {
-    aProb <- dzipois(x = goals, lambda = away[1, "ZIP_Lambda"], phi = away[1, "ZIP_Phi"])
-  } else if (aStr[1] == "Uniform") {
-    aProb[which(goals <= away[1, "Uniform_B"])] <- 1/(away[1, "Uniform_B"] - away[1, "Uniform_A"] + 1)
-  } else if (aStr[1] == "Geometric") {
-    aProb <- dgeom(x = goals, prob = away[1, "Geometric_P"])
-  } else if (aStr[1] == "NBD") {
-    aProb <- dnbinom(x = goals, mu = away[1, "NBD_K"], size = away[1, "NBD_P"])
-  }
+#   if (aStr[1] == "Poisson") {
+#     aProb <- dpois(x = goals, lambda = away[, "Poisson_Lambda"])
+#   } else if (aStr[1] == "ZIP") {
+#     aProb <- dzipois(x = goals, lambda = away[1, "ZIP_Lambda"], phi = away[1, "ZIP_Phi"])
+#   } else if (aStr[1] == "Uniform") {
+#     aProb[which(goals <= away[1, "Uniform_B"])] <- 1/(away[1, "Uniform_B"] - away[1, "Uniform_A"] + 1)
+#   } else if (aStr[1] == "Geometric") {
+#     aProb <- dgeom(x = goals, prob = away[1, "Geometric_P"])
+#   } else if (aStr[1] == "NBD") {
+#     aProb <- dnbinom(x = goals, mu = away[1, "NBD_K"], size = away[1, "NBD_P"])
+#   }
 
-  # hProb <- 3/2 * hProb
-  # aProb <- 2/3 * aProb
-
-  for (i in 1:ngoal) {
-    for (j in 1:ngoal) {
-      mat[i, j] <- hProb[i] * aProb[j]
-      
-      if (i == j) {
-        draw <- draw + mat[i, j] * 100
-      } else if (j > i) {
-        aWin <- aWin + mat[i, j] * 100
-      } else {
-        hWin <- hWin + mat[i, j] * 100
-      }
-
-      # if (mat[i, j] > tMax) {
-      #   # mat[i, j] <- paste0('<font style="background-color:red;color:white;">', mat[i, j], '</font>')
-      #   tMax <- mat[i, j]
-      #   # tInd <- c(i, j)
-      #   tInd <- c(i-1, j-1)
-      # }
-    }
-  }
+#   for (i in 1:ngoal) {
+#     for (j in 1:ngoal) {
+#       mat[i, j] <- hProb[i] * aProb[j]
+#       if (i == j) {
+#         draw <- draw + mat[i, j] * 100
+#       } else if (j > i) {
+#         aWin <- aWin + mat[i, j] * 100
+#       } else {
+#         hWin <- hWin + mat[i, j] * 100
+#       }
+#     }
+#   }
 
 
-  if (draw > 25 && hWin > 40) {
-    for (i in 1:ngoal) {
-      for (j in 1:i) {
-        if (mat[i, j] >= tMax) {
-          tInd <- c(i-1, j-1)
-          tMax <- mat[i, j]
-        }
-      }
-    }
-  } else if (draw > 25 && aWin > 40) {
-    for (i in 1:ngoal) {
-      for (j in i:ngoal) {
-        if (mat[i, j] >= tMax) {
-          tInd <- c(i-1, j-1)
-          tMax <- mat[i, j]
-        }
-      }
-    }
-  } else if (hWin > 40) {
-    for (i in 2:ngoal) {
-      for (j in 1:(i-1)) {
-        if (mat[i, j] >= tMax) {
-          tInd <- c(i-1, j-1)
-          tMax <- mat[i, j]
-        }
-      }
-    }
-  } else if (aWin > 40) {
-    for (i in 2:ngoal) {
-      for (j in (i-1):ngoal) {
-        if (mat[i, j] >= tMax) {
-          tInd <- c(i-1, j-1)
-          tMax <- mat[i, j]
-        }
-      }
-    }
-  } else {
-    if (hWin >= aWin && hWin >= draw) {
-      for (i in 2:ngoal) {
-        for (j in 1:(i-1)) {
-          if (mat[i, j] >= tMax) {
-            tInd <- c(i-1, j-1)
-            tMax <- mat[i, j]
-          }
-        }
-      }
-    } else if (aWin >= hWin && aWin >= draw) {
-      for (i in 2:ngoal) {
-        for (j in (i-1):ngoal) {
-          if (mat[i, j] >= tMax) {
-            tInd <- c(i-1, j-1)
-            tMax <- mat[i, j]
-          }
-        }
-      }
-    } else if (draw >= hWin && draw >= aWin) {
-      for (i in 1:ngoal) {
-        if (mat[i, i] >= tMax) {
-          tInd <- c(i-1, i-1)
-          tMax <- mat[i, i]
-        }
-      }
-    }
-  }
+#   if (draw > 25 && hWin > 40) {
+#     for (i in 1:ngoal) {
+#       for (j in 1:i) {
+#         if (mat[i, j] >= tMax) {
+#           tInd <- c(i-1, j-1)
+#           tMax <- mat[i, j]
+#         }
+#       }
+#     }
+#   } else if (draw > 25 && aWin > 40) {
+#     for (i in 1:ngoal) {
+#       for (j in i:ngoal) {
+#         if (mat[i, j] >= tMax) {
+#           tInd <- c(i-1, j-1)
+#           tMax <- mat[i, j]
+#         }
+#       }
+#     }
+#   } else if (hWin > 40) {
+#     for (i in 2:ngoal) {
+#       for (j in 1:(i-1)) {
+#         if (mat[i, j] >= tMax) {
+#           tInd <- c(i-1, j-1)
+#           tMax <- mat[i, j]
+#         }
+#       }
+#     }
+#   } else if (aWin > 40) {
+#     for (i in 2:ngoal) {
+#       for (j in (i-1):ngoal) {
+#         if (mat[i, j] >= tMax) {
+#           tInd <- c(i-1, j-1)
+#           tMax <- mat[i, j]
+#         }
+#       }
+#     }
+#   } else {
+#     if (hWin >= aWin && hWin >= draw) {
+#       for (i in 2:ngoal) {
+#         for (j in 1:(i-1)) {
+#           if (mat[i, j] >= tMax) {
+#             tInd <- c(i-1, j-1)
+#             tMax <- mat[i, j]
+#           }
+#         }
+#       }
+#     } else if (aWin >= hWin && aWin >= draw) {
+#       for (i in 2:ngoal) {
+#         for (j in (i-1):ngoal) {
+#           if (mat[i, j] >= tMax) {
+#             tInd <- c(i-1, j-1)
+#             tMax <- mat[i, j]
+#           }
+#         }
+#       }
+#     } else if (draw >= hWin && draw >= aWin) {
+#       for (i in 1:ngoal) {
+#         if (mat[i, i] >= tMax) {
+#           tInd <- c(i-1, i-1)
+#           tMax <- mat[i, i]
+#         }
+#       }
+#     }
+#   }
 
-  # xi <- 1
-  # xn <- ngoal
+#   homeOdd <- if ((100/hWin) - 1 < 1) {1.0} else {(100/hWin) - 1}
+#   drawOdd <- if ((100/draw) - 1 < 1) {1.0} else {(100/draw) - 1}
+#   awayOdd <- if ((100/aWin) - 1 < 1) {1.0} else {(100/aWin) - 1}
 
-  # if (draw < 25) {
-  #   xi <- 2
-  # } else if (hWin >= 40 || aWin >= 40) {
-  #   xi <- 2
-  # }
+#   out <- data.frame("hWin" = hWin, "draw" = draw, "aWin" = aWin, "homeOdd" = homeOdd, "drawOdd" = drawOdd,
+#                     "awayOdd" = awayOdd, "FTHG" = tInd[1], "FTAG" = tInd[2])
 
-  # for (i in xi:xn) {
-  #   if (hWin >= 40) {
-  #     for (j in 2:i) {
-  #       if (mat[i, j] >= tMax) {
-  #         tInd <- c(i-1, j-1)
-  #         tMax <- mat[i, j]
-  #       }
-  #     }
-  #   } else if (aWin >= 40) {
-  #     for (j in i:xn) {
-  #       if (mat[i, j] >= tMax) {
-  #         tInd <- c(i-1, j-1)
-  #         tMax <- mat[i, j]
-  #       }
-  #     }
-  #   } else {
-  #     for (j in 1:ngoal) {
-  #       if (mat[i, j] >= tMax) {
-  #         tInd <- c(i-1, j-1)
-  #         tMax <- mat[i, j]
-  #       }
-  #     }
-  #   }
-  # }
+#   # rownames(mat) <- 0:5
+#   # output[[table]] <- DT::renderDataTable({datatable(round(mat, 4), rownames = TRUE, escape = FALSE)})
 
-  homeOdd <- if ((100/hWin) - 1 < 1) {1.0} else {(100/hWin) - 1}
-  drawOdd <- if ((100/draw) - 1 < 1) {1.0} else {(100/draw) - 1}
-  awayOdd <- if ((100/aWin) - 1 < 1) {1.0} else {(100/aWin) - 1}
-
-  out <- data.frame("hWin" = hWin, "draw" = draw, "aWin" = aWin, "homeOdd" = homeOdd, "drawOdd" = drawOdd,
-                    "awayOdd" = awayOdd, "FTHG" = tInd[1], "FTAG" = tInd[2])
-
-  rownames(mat) <- 0:5
-  output[[table]] <- DT::renderDataTable({datatable(round(mat, 4), rownames = TRUE, escape = FALSE)})
-
-  return (out)
-}
+#   return (out)
+# }
 
 shinyServer(function(input, output, session) {
 
@@ -408,63 +363,14 @@ shinyServer(function(input, output, session) {
                   <td style="padding:5px;"><b>', input$fHome, '</b></td>
                   <td style="padding:5px;">', round(as.numeric(test[2, "FTHG"]), 0), '</td>
                   <td style="padding:5px;">', round(as.numeric(test[2, "FTAG"]), 0), '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
+                  <td style="padding:5px;"><b>', input$fAway, '</b></td>
                 </tr>
                 <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
+                  <td style="padding:5px;"><u>Predict</u></td>
+                  <td style="padding:5px;"><b>', input$fHome, '</b></td>
                   <td style="padding:5px;">', H, '</td>
                   <td style="padding:5px;">', A, '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-                  <td style="padding:5px;">', round(as.numeric(test[1, "FTHG"]), 0), '</td>
-                  <td style="padding:5px;">', round(as.numeric(test[1, "FTAG"]), 0), '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Win:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "hWin"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Draw:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "draw"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Away Win:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "aWin"], 2), ' %</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Odd:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "homeOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Draw Odd:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "drawOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Away Odd:</b></td>
-                  <td style="padding:5px;">', round(SvS[1, "awayOdd"], 2), '</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-                  <td style="padding:5px;">', SvS[1, "FTHG"], '</td>
-                  <td style="padding:5px;">', SvS[1, "FTAG"], '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Win:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "aWin"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Draw:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "draw"], 2), ' %</td>
-                  <td style="padding:5px;"><b>Away Win:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "hWin"], 2), ' %</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;"><b>Home Odd:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "awayOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Draw Odd:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "drawOdd"], 2), '</td>
-                  <td style="padding:5px;"><b>Away Odd:</b></td>
-                  <td style="padding:5px;">', round(CvC[1, "homeOdd"], 2), '</td>
-                </tr>
-                <tr>
-                  <td style="padding:5px;" colspan="2"><b>', input$fHome, '</b></td>
-                  <td style="padding:5px;">', CvC[1, "FTAG"], '</td>
-                  <td style="padding:5px;">', CvC[1, "FTHG"], '</td>
-                  <td style="padding:5px;" colspan="2"><b>', input$fAway, '</b></td>
+                  <td style="padding:5px;"><b>', input$fAway, '</b></td>
                 </tr>
               </table>'
             )
@@ -488,7 +394,7 @@ shinyServer(function(input, output, session) {
 
           data <- GetLeagueTable(country = input$country, league = input$league, season = input$season)
 
-          datatable(data[, 4:ncol(data)],
+          datatable(data,
               rownames = FALSE, escape = FALSE,
               extensions = c('ColReorder', 'ColVis', 'Responsive'),
               options = list(pageLength = -1,
@@ -505,29 +411,29 @@ shinyServer(function(input, output, session) {
       })
 
 
-      output$Tables <- DT::renderDataTable({
+      # output$Tables <- DT::renderDataTable({
 
-        withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
+      #   withProgress(message = 'Calculation in progress', detail = 'This may take a while...', min = 0, max = 2, {
 
-          data <- GetLeagueTable(country = input$country, league = input$league, season = input$season)
-          table <- GetTableOfSeason(data = data)
-          table <- cbind("Place" = 1:nrow(table), table)
+      #     data <- GetLeagueTable(country = input$country, league = input$league, season = input$season)
+      #     table <- GetTableOfSeason(data = data)
+      #     table <- cbind("Place" = 1:nrow(table), table)
 
-          datatable(table,
-              rownames = FALSE, escape = FALSE,
-              extensions = c('ColReorder', 'ColVis', 'Responsive'),
-              options = list(pageLength = -1,
-                  lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
-                  deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
-                  searchHighlight = TRUE,
-                  dom = 'TRCSlfrtip<"clear">',
-                  colReorder = list(realtime = TRUE)
-              )
-          )
+      #     datatable(table,
+      #         rownames = FALSE, escape = FALSE,
+      #         extensions = c('ColReorder', 'ColVis', 'Responsive'),
+      #         options = list(pageLength = -1,
+      #             lengthMenu = list(c(-1, 50, 100), list('All', '50', '150')),
+      #             deferRender = TRUE, colVis = list(exclude = c(0, 1), activate = 'mouseover'),
+      #             searchHighlight = TRUE,
+      #             dom = 'TRCSlfrtip<"clear">',
+      #             colReorder = list(realtime = TRUE)
+      #         )
+      #     )
 
-        })
+      #   })
 
-      })
+      # })
 
       output$vs <- DT::renderDataTable({
 
